@@ -11,7 +11,7 @@
         <Product>Client Builder</Product>
         <PackageProjectUrl>https://clientbuilder.dev/</PackageProjectUrl>
         <RepositoryUrl>https://github.com/clientbuilder/clientbuilder</RepositoryUrl>
-        <Description>Next generation productivity tool for runtime generation</Description>
+        <Description>Runtime generation engine</Description>
         <PackageTags>runtime generation, aspnet, aspnetmvc, scaffolding</PackageTags>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageIcon>logo_128.png</PackageIcon>
