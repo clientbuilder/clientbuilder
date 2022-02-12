@@ -1,4 +1,4 @@
-﻿namespace ClientBuilder;
+﻿namespace ClientBuilder.Common;
 
 /// <summary>
 /// Type of the application instance.
@@ -24,4 +24,25 @@ public enum InstanceType
     /// Desktop module instance.
     /// </summary>
     Desktop = 3,
+}
+
+/// <summary>
+/// Type of generation result.
+/// </summary>
+public enum ScaffoldModuleGenerationStatusType
+{
+    /// <summary>
+    /// Successful.
+    /// </summary>
+    Successful = 1,
+
+    /// <summary>
+    /// Success with errors.
+    /// </summary>
+    SuccessfulWithErrors = 2,
+
+    /// <summary>
+    /// Unsuccessful.
+    /// </summary>
+    Unsuccessful = 3,
 }

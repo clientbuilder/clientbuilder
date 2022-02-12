@@ -1,0 +1,83 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
+using ClientBuilder.Core;
+using ClientBuilder.RuleSet;
+
+namespace ClientBuilder.Options;
+
+/// <summary>
+/// Client Builder options class that contains all configuration capabilities.
+/// </summary>
+public class ClientBuilderOptions
+{
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ClientBuilderOptions"/> class.
+    /// </summary>
+    public ClientBuilderOptions()
+    {
+        this.Assemblies = new List<Assembly>();
+        this.ScanningRules = new List<IScanningRules>();
+        this.ModulesTypes = new List<Type>();
+
+        this.InitializeDefaults();
+    }
+
+    /// <summary>
+    /// List of all assemblies that are going to be scanned for the purposes of client builder.
+    /// </summary>
+    public IList<Assembly> Assemblies { get; }
+
+    /// <summary>
+    /// List of all rule sets used as a strategy for assembly scanning.
+    /// </summary>
+    public IList<IScanningRules> ScanningRules { get; }
+
+    /// <summary>
+    /// List of all scaffold modules used for code generation from the Client Builder.
+    /// </summary>
+    public List<Type> ModulesTypes { get; }
+
+    /// <summary>
+    /// Adds an assembly to the <see cref="Assemblies"/>.
+    /// </summary>
+    /// <param name="assemblyString"></param>
+    public void AddAssembly(string assemblyString)
+    {
+        this.AddAssembly(Assembly.Load(assemblyString));
+    }
+
+    /// <summary>
+    /// Adds an assembly to the <see cref="Assemblies"/>.
+    /// </summary>
+    /// <param name="assembly"></param>
+    public void AddAssembly(Assembly assembly)
+    {
+        this.Assemblies.Add(assembly);
+    }
+
+    /// <summary>
+    /// Adds a scanning rules to the <see cref="ScanningRules"/>.
+    /// </summary>
+    /// <param name="rules"></param>
+    public void AddScanningRules(IScanningRules rules)
+    {
+        this.ScanningRules.Add(rules);
+    }
+
+    /// <summary>
+    /// Add scaffold module to the Client Builder storage.
+    /// </summary>
+    /// <typeparam name="TModule">Type of the module.</typeparam>
+    public void AddModule<TModule>()
+        where TModule : ScaffoldModule
+    {
+        this.ModulesTypes.Add(typeof(TModule));
+    }
+
+    private void InitializeDefaults()
+    {
+        this.AddScanningRules(new DefaultControllersScanningRules());
+        this.AddScanningRules(new DefaultElementsScanningRules());
+    }
+}
