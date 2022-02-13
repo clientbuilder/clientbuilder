@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ClientBuilder.Core;
+namespace ClientBuilder.Core.Modules;
 
 /// <summary>
 /// A contract that defines the file template and its render strategy.

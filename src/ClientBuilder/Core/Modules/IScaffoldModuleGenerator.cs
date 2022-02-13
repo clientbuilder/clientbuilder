@@ -2,7 +2,7 @@
 using ClientBuilder.Common;
 using ClientBuilder.Models;
 
-namespace ClientBuilder.Core;
+namespace ClientBuilder.Core.Modules;
 
 /// <summary>
 /// Service that is responsible for the generation of the scaffold modules.

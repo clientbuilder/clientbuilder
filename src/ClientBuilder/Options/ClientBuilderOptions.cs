@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using ClientBuilder.Core;
+using ClientBuilder.Common;
+using ClientBuilder.Core.Modules;
 using ClientBuilder.RuleSet;
 
 namespace ClientBuilder.Options;
@@ -20,6 +21,9 @@ public class ClientBuilderOptions
         this.ScanningRules = new List<IScanningRules>();
         this.ModulesTypes = new List<Type>();
 
+        this.PrimitiveTypes = new Dictionary<Type, string>(Defaults.PrimitiveTypes);
+        this.ClientRelatedTypes = new Dictionary<string, string>(Defaults.ClientRelatedTypes);
+
         this.InitializeDefaults();
     }
 
@@ -37,6 +41,18 @@ public class ClientBuilderOptions
     /// List of all scaffold modules used for code generation from the Client Builder.
     /// </summary>
     public List<Type> ModulesTypes { get; }
+
+    /// <summary>
+    /// Map between primitive types and their names. That map is used to define which types can be used
+    /// as primitive from the Client Builder. If a primitive type is missing in this dictionary
+    /// the engine will define the type as non primitive.
+    /// </summary>
+    public IDictionary<Type, string> PrimitiveTypes { get; }
+
+    /// <summary>
+    /// Map between types and their client format. Default implementation follows JavaScript types.
+    /// </summary>
+    public IDictionary<string, string> ClientRelatedTypes { get; }
 
     /// <summary>
     /// Adds an assembly to the <see cref="Assemblies"/>.

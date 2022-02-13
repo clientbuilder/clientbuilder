@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ClientBuilder.Core;
+namespace ClientBuilder.Core.Modules;
 
 /// <summary>
 /// File template based on T4 text rendering.

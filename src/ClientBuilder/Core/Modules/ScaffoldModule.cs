@@ -1,26 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 using ClientBuilder.Common;
 using ClientBuilder.Exceptions;
 
-namespace ClientBuilder.Core;
+namespace ClientBuilder.Core.Modules;
 
 /// <summary>
 /// Abstract implementation of a runtime generation module that provides all abstractions and methods required by the Client Builder.
 /// </summary>
 public abstract class ScaffoldModule : IScaffoldModule
 {
+    private readonly IFileSystemManager fileSystemManager;
     private readonly IList<ScaffoldModuleFile> files;
     private readonly IList<ScaffoldModuleFolder> folders;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ScaffoldModule"/> class.
     /// </summary>
-    protected ScaffoldModule()
+    /// <param name="fileSystemManager"></param>
+    protected ScaffoldModule(IFileSystemManager fileSystemManager)
     {
+        this.fileSystemManager = fileSystemManager;
+
         this.files = new List<ScaffoldModuleFile>();
         this.folders = new List<ScaffoldModuleFolder>();
     }
@@ -140,8 +142,8 @@ public abstract class ScaffoldModule : IScaffoldModule
             this.Generated = true;
             foreach (var file in this.files)
             {
-                var currentFilePath = Path.Combine(this.SourceDirectory, file.RelativePath, file.Name);
-                this.Generated = this.Generated && File.Exists(currentFilePath);
+                var currentFilePath = this.fileSystemManager.CombinePaths(this.SourceDirectory, file.RelativePath, file.Name);
+                this.Generated = this.Generated && this.fileSystemManager.IsFileExists(currentFilePath);
             }
         }
 
@@ -155,8 +157,8 @@ public abstract class ScaffoldModule : IScaffoldModule
             this.Generated = true;
             foreach (var folder in this.folders)
             {
-                var currentFolderPath = Path.Combine(this.SourceDirectory, folder.RelativePath, folder.Name);
-                this.Generated = this.Generated && Directory.Exists(currentFolderPath);
+                var currentFolderPath = this.fileSystemManager.CombinePaths(this.SourceDirectory, folder.RelativePath, folder.Name);
+                this.Generated = this.Generated && this.fileSystemManager.IsFolderExists(currentFolderPath);
             }
         }
     }

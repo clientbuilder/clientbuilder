@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using ClientBuilder.Common;
 
-namespace ClientBuilder.Core;
+namespace ClientBuilder.Core.Modules;
 
 /// <summary>
 /// Scaffold module repository for access defined Client Builder modules.

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ClientBuilder.Core;
+namespace ClientBuilder.Core.Modules;
 
 /// <summary>
 /// Factory for creating scaffold modules.

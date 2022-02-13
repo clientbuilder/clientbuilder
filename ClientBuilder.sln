@@ -8,6 +8,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionFiles", "SolutionFi
 		ClientBuilder.ruleset = ClientBuilder.ruleset
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientBuilder.Tests", "test\ClientBuilder.Tests\ClientBuilder.Tests.csproj", "{F623B440-C50E-4FEB-B50A-1231ED895B62}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientBuilder.TestAssembly", "test\ClientBuilder.TestAssembly\ClientBuilder.TestAssembly.csproj", "{486041BD-90C7-49FF-92AD-4AB635FAE473}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{0DD0B3F7-DF2E-4962-8B88-B4420EAA5409}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0DD0B3F7-DF2E-4962-8B88-B4420EAA5409}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0DD0B3F7-DF2E-4962-8B88-B4420EAA5409}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F623B440-C50E-4FEB-B50A-1231ED895B62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F623B440-C50E-4FEB-B50A-1231ED895B62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F623B440-C50E-4FEB-B50A-1231ED895B62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F623B440-C50E-4FEB-B50A-1231ED895B62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{486041BD-90C7-49FF-92AD-4AB635FAE473}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{486041BD-90C7-49FF-92AD-4AB635FAE473}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{486041BD-90C7-49FF-92AD-4AB635FAE473}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{486041BD-90C7-49FF-92AD-4AB635FAE473}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

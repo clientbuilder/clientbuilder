@@ -1,4 +1,4 @@
-﻿namespace ClientBuilder.Core;
+﻿namespace ClientBuilder.Core.Modules;
 
 /// <summary>
 /// Folder implementation which will be created by the Client Builder.

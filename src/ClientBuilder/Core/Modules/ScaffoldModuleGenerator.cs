@@ -1,24 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using ClientBuilder.Common;
 using ClientBuilder.Models;
 
-namespace ClientBuilder.Core;
+namespace ClientBuilder.Core.Modules;
 
 /// <inheritdoc />
 public class ScaffoldModuleGenerator : IScaffoldModuleGenerator
 {
     private readonly IScaffoldModuleRepository scaffoldModuleRepository;
+    private readonly IFileSystemManager fileSystemManager;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ScaffoldModuleGenerator"/> class.
     /// </summary>
     /// <param name="scaffoldModuleRepository"></param>
-    public ScaffoldModuleGenerator(IScaffoldModuleRepository scaffoldModuleRepository)
+    /// <param name="fileSystemManager"></param>
+    public ScaffoldModuleGenerator(
+        IScaffoldModuleRepository scaffoldModuleRepository,
+        IFileSystemManager fileSystemManager)
     {
         this.scaffoldModuleRepository = scaffoldModuleRepository;
+        this.fileSystemManager = fileSystemManager;
     }
 
     /// <inheritdoc/>
@@ -93,11 +97,8 @@ public class ScaffoldModuleGenerator : IScaffoldModuleGenerator
             {
                 try
                 {
-                    var folderPath = Path.Combine(module.SourceDirectory, folder.RelativePath, folder.Name);
-                    if (!Directory.Exists(folderPath))
-                    {
-                        Directory.CreateDirectory(folderPath);
-                    }
+                    var folderPath = this.fileSystemManager.CombinePaths(module.SourceDirectory, folder.RelativePath, folder.Name);
+                    this.fileSystemManager.CreateFolder(folderPath);
                 }
                 catch (Exception ex)
                 {
@@ -111,10 +112,11 @@ public class ScaffoldModuleGenerator : IScaffoldModuleGenerator
                 try
                 {
                     string fileContent = file.BuildContent();
-                    string filePath = Path.Combine(module.SourceDirectory, file.RelativePath, file.Name);
-                    if (!File.Exists(filePath) || module.Locked)
+                    string filePath = this.fileSystemManager.CombinePaths(module.SourceDirectory, file.RelativePath, file.Name);
+                    bool isFileExists = this.fileSystemManager.IsFileExists(filePath);
+                    if (!isFileExists || module.Locked)
                     {
-                        File.WriteAllText(filePath, fileContent);
+                        this.fileSystemManager.CreateFile(filePath, fileContent);
                     }
                 }
                 catch (Exception ex)

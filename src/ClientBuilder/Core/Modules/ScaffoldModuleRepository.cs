@@ -2,7 +2,7 @@
 using System.Linq;
 using ClientBuilder.Common;
 
-namespace ClientBuilder.Core;
+namespace ClientBuilder.Core.Modules;
 
 /// <inheritdoc />
 public class ScaffoldModuleRepository : IScaffoldModuleRepository

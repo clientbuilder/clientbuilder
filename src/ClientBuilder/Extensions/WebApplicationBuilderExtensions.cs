@@ -1,5 +1,6 @@
 ﻿using System;
-using ClientBuilder.Core;
+using ClientBuilder.Core.Modules;
+using ClientBuilder.Core.Scanning;
 using ClientBuilder.Options;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,8 +29,12 @@ public static class WebApplicationBuilderExtensions
         var options = new ClientBuilderOptions();
         optionsAction?.Invoke(options);
 
+        builder.Services.AddSingleton<IFileSystemManager, FileSystemManager>();
         builder.Services.AddSingleton<IScaffoldModuleRepository, ScaffoldModuleRepository>();
         builder.Services.AddScoped<IScaffoldModuleGenerator, ScaffoldModuleGenerator>();
+        builder.Services.AddScoped<IAssemblyScanner, AssemblyScanner>();
+        builder.Services.AddScoped<IDescriptionExtractor, DescriptionExtractor>();
+        builder.Services.AddScoped<ISourceRepository, SourceRepository>();
 
         foreach (var modulesType in options.ModulesTypes)
         {
