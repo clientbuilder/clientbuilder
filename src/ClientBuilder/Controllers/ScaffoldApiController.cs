@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AutoMapper;
+using ClientBuilder.Common;
 using ClientBuilder.Core.Modules;
 using ClientBuilder.Exceptions;
 using ClientBuilder.Models;
@@ -22,7 +22,6 @@ public sealed class ScaffoldApiController : ControllerBase
 {
     private readonly IScaffoldModuleRepository scaffoldModuleRepository;
     private readonly IScaffoldModuleGenerator scaffoldModuleGenerator;
-    private readonly IMapper mapper;
     private readonly ILogger<ScaffoldApiController> logger;
 
     /// <summary>
@@ -31,18 +30,15 @@ public sealed class ScaffoldApiController : ControllerBase
     /// <param name="hostEnvironment"></param>
     /// <param name="scaffoldModuleRepository"></param>
     /// <param name="scaffoldModuleGenerator"></param>
-    /// <param name="mapper"></param>
     /// <param name="logger"></param>
     public ScaffoldApiController(
         IWebHostEnvironment hostEnvironment,
         IScaffoldModuleRepository scaffoldModuleRepository,
         IScaffoldModuleGenerator scaffoldModuleGenerator,
-        IMapper mapper,
         ILogger<ScaffoldApiController> logger)
     {
         this.scaffoldModuleRepository = scaffoldModuleRepository;
         this.scaffoldModuleGenerator = scaffoldModuleGenerator;
-        this.mapper = mapper;
         this.logger = logger;
         if (!hostEnvironment.IsDevelopment())
         {
@@ -57,7 +53,7 @@ public sealed class ScaffoldApiController : ControllerBase
     [HttpGet("modules")]
     public IActionResult GetAllModules()
     {
-        return this.Ok(this.scaffoldModuleRepository.GetModules());
+        return this.Ok(this.scaffoldModuleRepository.GetModules().Select(ResponseMapper.MapToModel));
     }
 
     /// <summary>
