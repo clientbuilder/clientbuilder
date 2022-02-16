@@ -64,7 +64,6 @@ public class DescriptionExtractor : IDescriptionExtractor
             {
                 description.Name = this.options.PrimitiveTypes[type];
                 description.FullName = description.Name;
-                description.ClientTypeName = this.options.ClientRelatedTypes[description.Name];
                 isPrimitiveType = true;
             }
 
@@ -72,7 +71,6 @@ public class DescriptionExtractor : IDescriptionExtractor
             {
                 description.Name = this.options.PrimitiveTypes[Nullable.GetUnderlyingType(type)];
                 description.FullName = description.Name;
-                description.ClientTypeName = this.options.ClientRelatedTypes[description.Name];
                 isPrimitiveType = true;
             }
 
@@ -82,26 +80,18 @@ public class DescriptionExtractor : IDescriptionExtractor
                 description.IsNullable = true;
                 description.Name = type.Name;
                 description.FullName = type.FullName;
-                description.ClientTypeName = description.Name;
             }
 
             if (!isPrimitiveType && description.IsGenericType && !description.IsCollection)
             {
                 description.Name = this.GetGenericTypeClearName(description.Name);
                 description.GenericType = this.ExtractTypeDescription(type.GetGenericArguments().FirstOrDefault());
-                description.ClientTypeName = description.Name;
-            }
-
-            if (description.IsCollection)
-            {
-                description.ClientTypeName = this.GetClientCollectionType(description.ClientTypeName);
             }
 
             if (description.IsEnum)
             {
                 description.Name = type.Name;
                 description.FullName = type.FullName;
-                description.ClientTypeName = this.options.ClientRelatedTypes["int"];
                 description.EnumValues = new Dictionary<string, int>();
                 var enumValues = Enum.GetValues(type);
                 foreach (var value in enumValues)
@@ -228,8 +218,6 @@ public class DescriptionExtractor : IDescriptionExtractor
 
         return resultEnumsTypes;
     }
-
-    private string GetClientCollectionType(string type) => $"Array<{type}>";
 
     private string GetGenericTypeClearName(string name) => name.Split('`').FirstOrDefault() ?? name;
 

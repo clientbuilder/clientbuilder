@@ -32,33 +32,4 @@ public static class Defaults
         { typeof(double), "double" },
         { typeof(decimal), "decimal" },
     };
-
-    /// <summary>
-    /// Map between a type and its client format. Default implementation follows JavaScript types.
-    /// For example: 'Guid' in the C# can be represented as 'string' in JavaScript.
-    /// </summary>
-    public static readonly Dictionary<string, string> ClientRelatedTypes = new ()
-    {
-        { "bool", "boolean" },
-        { "Boolean", "boolean" },
-        { "string", "string" },
-        { "String", "string" },
-        { "char", "string" },
-        { "Guid", "string" },
-        { "DateTime", "string" },
-        { "TimeSpan", "string" },
-        { "byte", "number" },
-        { "short", "number" },
-        { "int", "number" },
-        { "long", "number" },
-        { "sbyte", "number" },
-        { "ushort", "number" },
-        { "uint", "number" },
-        { "ulong", "number" },
-        { "Int32", "number" },
-        { "Int64", "number" },
-        { "float", "number" },
-        { "double", "number" },
-        { "decimal", "number" },
-    };
 }

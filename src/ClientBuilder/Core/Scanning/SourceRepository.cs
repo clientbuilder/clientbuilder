@@ -98,6 +98,26 @@ public class SourceRepository : ISourceRepository
         }
     }
 
+    /// <inheritdoc/>
+    public IEnumerable<TypeDescription> GetAllRegisteredEnums()
+    {
+        try
+        {
+            var enumsTypeDescriptions = this.assemblyScanner
+                .FetchSourceTypes()
+                .Where(x => x.Type.IsEnum)
+                .Select(x => this.descriptionExtractor.ExtractTypeDescription(x.Type))
+                .ToList();
+
+            return enumsTypeDescriptions;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "An unexpected error occurred during fetching enums");
+            return new List<TypeDescription>();
+        }
+    }
+
     private ControllerAction BuildAction(MethodInfo actionInfo, Type controllerType)
     {
         try

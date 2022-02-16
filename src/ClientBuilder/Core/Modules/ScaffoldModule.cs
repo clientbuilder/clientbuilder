@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using ClientBuilder.Common;
 using ClientBuilder.Exceptions;
 
@@ -81,6 +82,15 @@ public abstract class ScaffoldModule : IScaffoldModule
     /// Setup method that defines the required folder and files.
     /// </summary>
     public abstract void Setup();
+
+    /// <summary>
+    /// Set source directory.
+    /// </summary>
+    /// <param name="sourceDirectory"></param>
+    public void SetSourceDirectory(string sourceDirectory)
+    {
+        this.SourceDirectory = sourceDirectory;
+    }
 
     /// <summary>
     /// Add module file.

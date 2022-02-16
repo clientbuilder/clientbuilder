@@ -64,8 +64,19 @@ public sealed class ScaffoldApiController : ControllerBase
     [HttpPost("generate")]
     public IActionResult GenerateModule([FromBody]GenerationByIdRequest request)
     {
-        var targetModule = this.scaffoldModuleRepository.GetModule(request.ModuleId);
-        return this.TriggerGeneration(new List<ScaffoldModule> { targetModule });
+        var modulesForGeneration = new List<ScaffoldModule>();
+        if (string.IsNullOrWhiteSpace(request.ModuleId))
+        {
+            var modules = this.scaffoldModuleRepository.GetModules();
+            modulesForGeneration.AddRange(modules);
+        }
+        else
+        {
+            var targetModule = this.scaffoldModuleRepository.GetModule(request.ModuleId);
+            modulesForGeneration.Add(targetModule);
+        }
+
+        return this.TriggerGeneration(modulesForGeneration);
     }
 
     /// <summary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using ClientBuilder.Common;
 using ClientBuilder.Core.Modules;
@@ -20,9 +21,9 @@ public class ClientBuilderOptions
         this.Assemblies = new List<Assembly>();
         this.ScanningRules = new List<IScanningRules>();
         this.ModulesTypes = new List<Type>();
+        this.ClientApplicationsPaths = new Dictionary<string, string>();
 
         this.PrimitiveTypes = new Dictionary<Type, string>(Defaults.PrimitiveTypes);
-        this.ClientRelatedTypes = new Dictionary<string, string>(Defaults.ClientRelatedTypes);
 
         this.InitializeDefaults();
     }
@@ -50,9 +51,35 @@ public class ClientBuilderOptions
     public IDictionary<Type, string> PrimitiveTypes { get; }
 
     /// <summary>
-    /// Map between types and their client format. Default implementation follows JavaScript types.
+    /// Paths of the client applications used use for the purposes of client builder.
     /// </summary>
-    public IDictionary<string, string> ClientRelatedTypes { get; }
+    public Dictionary<string, string> ClientApplicationsPaths { get; private set; }
+
+    /// <summary>
+    /// Method that set the mobile application path into the options.
+    /// </summary>
+    /// <param name="clientIdentifier"></param>
+    /// <param name="paths">Paths are defined by the solution folder.</param>
+    public void SetClientApplicationPath(string clientIdentifier, params string[] paths)
+    {
+        this.ClientApplicationsPaths[clientIdentifier] = Path.Combine(paths);
+    }
+
+    /// <summary>
+    /// Returns client path based on specified identifier.
+    /// </summary>
+    /// <param name="clientIdentifier"></param>
+    /// <returns></returns>
+    /// <exception cref="KeyNotFoundException">Throw an error in case of undefined client path.</exception>
+    public string GetClientApplicationPath(string clientIdentifier)
+    {
+        if (!this.ClientApplicationsPaths.ContainsKey(clientIdentifier))
+        {
+            throw new KeyNotFoundException($"There is no defined client application path for that identifier '{clientIdentifier}'");
+        }
+
+        return this.ClientApplicationsPaths[clientIdentifier];
+    }
 
     /// <summary>
     /// Adds an assembly to the <see cref="Assemblies"/>.

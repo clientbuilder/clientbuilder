@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using ClientBuilder.Common;
 
@@ -31,11 +32,6 @@ public class TypeDescription
     /// Full name of the class with the generic suffix.
     /// </summary>
     public string FullNameWithGeneric => this.FullName + this.GenericTypeSuffix;
-
-    /// <summary>
-    /// JavaScript name of the class.
-    /// </summary>
-    public string ClientTypeName { get; set; }
 
     /// <summary>
     /// List of all properties of the class.
@@ -83,35 +79,41 @@ public class TypeDescription
     public Dictionary<string, int> EnumValues { get; set; }
 
     /// <summary>
-    /// Constructor arguments names of the class, separated with comma and join into a string.
+    /// Gets client type based on specified type mapper.
     /// </summary>
-    public string ConstructorArgumentsListString
-    {
-        get
-        {
-            if (this.Properties == null || this.Properties.Count == 0)
-            {
-                return string.Empty;
-            }
+    /// <param name="typeMapper"></param>
+    /// <returns></returns>
+    public string GetClientType(IDictionary<string, string> typeMapper) =>
+        typeMapper.TryGetValue(this.Name, out var clientType) ? clientType : this.Name;
 
-            return string.Join(", ", this.Properties.Select(x => x.Name.ToFirstLower()));
+    /// <summary>
+    /// Returns string that contains a list of all arguments for the current type based on type parameters.
+    /// </summary>
+    /// <param name="format">Format for rendering of each argument - {0} is type, {1} is name. Example: '{0} {1}'.</param>
+    /// <param name="typeMapper"></param>
+    /// <returns></returns>
+    public string GetStronglyTypedClientArgumentListString(string format, IDictionary<string, string> typeMapper)
+    {
+        if (this.Properties == null || this.Properties.Count == 0)
+        {
+            return string.Empty;
         }
+
+        return string.Join(", ", this.Properties.Select(x => string.Format(format, x.Type.GetClientType(typeMapper), x.Name.ToFirstLower())));
     }
 
     /// <summary>
-    /// Constructor arguments names of the endpoint, separated with comma and join into a string with their types.
+    /// Returns string that contains a list of all arguments for the current type based on type parameters.
     /// </summary>
-    public string ConstructorStrongTypedArgumentsListString
+    /// <returns></returns>
+    public string GetClientArgumentNameListString()
     {
-        get
+        if (this.Properties == null || this.Properties.Count == 0)
         {
-            if (this.Properties == null || this.Properties.Count == 0)
-            {
-                return string.Empty;
-            }
-
-            return string.Join(", ", this.Properties.Select(x => $"{x.Type.Name} {x.Name.ToFirstLower()}"));
+            return string.Empty;
         }
+
+        return string.Join(", ", this.Properties.Select(x => x.Name.ToFirstLower()));
     }
 
     /// <inheritdoc/>

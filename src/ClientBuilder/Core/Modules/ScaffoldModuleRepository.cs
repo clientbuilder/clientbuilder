@@ -7,7 +7,7 @@ namespace ClientBuilder.Core.Modules;
 /// <inheritdoc />
 public class ScaffoldModuleRepository : IScaffoldModuleRepository
 {
-    private readonly IEnumerable<ScaffoldModule> modules;
+    private readonly IScaffoldModuleFactory scaffoldModuleFactory;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ScaffoldModuleRepository"/> class.
@@ -15,7 +15,7 @@ public class ScaffoldModuleRepository : IScaffoldModuleRepository
     /// <param name="scaffoldModuleFactory"></param>
     public ScaffoldModuleRepository(IScaffoldModuleFactory scaffoldModuleFactory)
     {
-        this.modules = scaffoldModuleFactory.BuildScaffoldModules();
+        this.scaffoldModuleFactory = scaffoldModuleFactory;
     }
 
     /// <inheritdoc/>
@@ -24,7 +24,7 @@ public class ScaffoldModuleRepository : IScaffoldModuleRepository
 
     /// <inheritdoc/>
     public IList<ScaffoldModule> GetModules() =>
-        this.GetConsolidateModules().ToList();
+        this.scaffoldModuleFactory.BuildScaffoldModules().ToList();
 
     /// <inheritdoc/>
     public IList<ScaffoldModule> GetModulesByClientId(string clientId) =>
@@ -33,15 +33,4 @@ public class ScaffoldModuleRepository : IScaffoldModuleRepository
     /// <inheritdoc/>
     public IList<ScaffoldModule> GetModulesByInstance(InstanceType type) =>
         this.GetModules().Where(x => x.Type == type).ToList();
-
-    private IEnumerable<ScaffoldModule> GetConsolidateModules()
-    {
-        foreach (var module in this.modules)
-        {
-            module.ValidateModule();
-            module.Sync();
-        }
-
-        return this.modules;
-    }
 }

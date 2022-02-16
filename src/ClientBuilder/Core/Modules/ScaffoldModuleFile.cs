@@ -30,7 +30,7 @@ public class ScaffoldModuleFile
     /// <summary>
     /// Data related to the file itself.
     /// </summary>
-    public IDictionary<string, object> ContextData { get; set; }
+    public object ContextData { get; set; }
 
     /// <summary>
     /// Builds content of the file content.

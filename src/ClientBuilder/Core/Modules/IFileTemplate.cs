@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace ClientBuilder.Core.Modules;
+﻿namespace ClientBuilder.Core.Modules;
 
 /// <summary>
 /// A contract that defines the file template and its render strategy.
@@ -12,5 +10,5 @@ public interface IFileTemplate
     /// </summary>
     /// <param name="contextData"></param>
     /// <returns></returns>
-    string Render(IDictionary<string, object> contextData);
+    string Render(object contextData);
 }

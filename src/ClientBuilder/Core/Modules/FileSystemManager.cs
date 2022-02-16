@@ -28,10 +28,7 @@ public class FileSystemManager : IFileSystemManager
             throw new ArgumentNullException(nameof(filePath));
         }
 
-        if (!File.Exists(filePath))
-        {
-            File.WriteAllText(filePath, fileContent);
-        }
+        File.WriteAllText(filePath, fileContent);
     }
 
     /// <inheritdoc/>

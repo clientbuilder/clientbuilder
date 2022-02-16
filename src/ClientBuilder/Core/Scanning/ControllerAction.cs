@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using ClientBuilder.Common;
 
 namespace ClientBuilder.Core.Scanning;
 
@@ -68,51 +69,32 @@ public class ControllerAction
     public ArgumentDescription ComplexArgument => this.Arguments.FirstOrDefault(x => x.Type.IsComplex);
 
     /// <summary>
-    /// Arguments names of the action, separated with comma and join into a string.
+    /// Returns string that contains a list of all arguments for the current type based on type parameters.
     /// </summary>
-    public string ArgumentsListString
+    /// <param name="format">Format for rendering of each argument - {0} is type, {1} is name. Example: '{0} {1}'.</param>
+    /// <param name="typeMapper"></param>
+    /// <returns></returns>
+    public string GetStronglyTypedClientArgumentListString(string format, IDictionary<string, string> typeMapper)
     {
-        get
+        if (this.Arguments == null || !this.Arguments.Any())
         {
-            if (this.Arguments == null || !this.Arguments.Any())
-            {
-                return string.Empty;
-            }
-
-            return string.Join(", ", this.Arguments.Select(x => x.Name));
+            return string.Empty;
         }
+
+        return string.Join(", ", this.Arguments.Select(x => string.Format(format, x.Type.GetClientType(typeMapper), x.Name.ToFirstLower())));
     }
 
     /// <summary>
-    /// Arguments names of the action, separated with comma and join into a string with their types.
+    /// Returns string that contains a list of all arguments for the current type based on type parameters.
     /// </summary>
-    public string StrongTypedArgumentsListString
+    /// <returns></returns>
+    public string GetClientArgumentNameListString()
     {
-        get
+        if (this.Arguments == null || !this.Arguments.Any())
         {
-            if (this.Arguments == null || !this.Arguments.Any())
-            {
-                return string.Empty;
-            }
-
-            return string.Join(", ", this.Arguments.Select(x => $"{x.Type.Name} {x.Name}"));
+            return string.Empty;
         }
-    }
 
-    /// <summary>
-    /// Arguments names of the action in client format, separated with comma and join into a string with their types.
-    /// The default definition consider client as JavaScript.
-    /// </summary>
-    public string StrongTypedClientArgumentsListString
-    {
-        get
-        {
-            if (this.Arguments == null || !this.Arguments.Any())
-            {
-                return string.Empty;
-            }
-
-            return string.Join(", ", this.Arguments.Select(x => $"{x.Name}: {x.Type.ClientTypeName}"));
-        }
+        return string.Join(", ", this.Arguments.Select(x => x.Name.ToFirstLower()));
     }
 }

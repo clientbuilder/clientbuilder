@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using ClientBuilder.DataAnnotations;
 
 namespace ClientBuilder.Core.Scanning;
@@ -20,4 +21,10 @@ public interface ISourceRepository
     /// </summary>
     /// <returns></returns>
     IEnumerable<TypeDescription> GetAllControllerActionsClasses();
+
+    /// <summary>
+    /// Get list of all registered enums decorated <see cref="IncludeElementAttribute"/>.
+    /// </summary>
+    /// <returns></returns>
+    IEnumerable<TypeDescription> GetAllRegisteredEnums();
 }

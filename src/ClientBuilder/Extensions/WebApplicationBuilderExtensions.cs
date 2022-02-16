@@ -29,6 +29,10 @@ public static class WebApplicationBuilderExtensions
         var options = new ClientBuilderOptions();
         optionsAction?.Invoke(options);
 
+        builder.Services.AddOptions<ClientBuilderOptions>();
+        builder.Services.PostConfigure(optionsAction);
+
+        builder.Services.AddSingleton<IScaffoldModuleFactory, ScaffoldModuleFactory>();
         builder.Services.AddSingleton<IFileSystemManager, FileSystemManager>();
         builder.Services.AddSingleton<IScaffoldModuleRepository, ScaffoldModuleRepository>();
         builder.Services.AddScoped<IScaffoldModuleGenerator, ScaffoldModuleGenerator>();
