@@ -1,4 +1,5 @@
 ﻿using System;
+using ClientBuilder.Common;
 using ClientBuilder.Core.Modules;
 using ClientBuilder.Core.Scanning;
 using ClientBuilder.Options;
@@ -44,6 +45,20 @@ public static class WebApplicationBuilderExtensions
         {
             builder.Services.AddScoped(modulesType);
         }
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(Constants.ClientBuilderCorsPolicy, builder =>
+            {
+                builder
+                    .WithOrigins(
+                        "https://clientbuilder.dev",
+                        "https://localhost:7069",
+                        "http://localhost:5069")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
 
         return builder;
     }

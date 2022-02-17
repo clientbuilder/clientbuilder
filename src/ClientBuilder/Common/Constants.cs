@@ -15,4 +15,9 @@ public static class Constants
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------";
+
+    /// <summary>
+    /// Default Client Builder CORS policy name.
+    /// </summary>
+    public const string ClientBuilderCorsPolicy = "_CB_CorsPolicy";
 }

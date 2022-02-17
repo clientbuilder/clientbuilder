@@ -17,7 +17,7 @@ namespace ClientBuilder.Controllers;
 /// Client Builder API controller that provide all access and scaffold generation features.
 /// </summary>
 [Route("/_cb/api/scaffold/")]
-[DisableCors]
+[EnableCors(Constants.ClientBuilderCorsPolicy)]
 public sealed class ScaffoldApiController : ControllerBase
 {
     private readonly IScaffoldModuleRepository scaffoldModuleRepository;
