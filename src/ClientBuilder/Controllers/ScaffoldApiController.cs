@@ -47,6 +47,16 @@ public sealed class ScaffoldApiController : ControllerBase
     }
 
     /// <summary>
+    /// Checks whether the application is available.
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost("check")]
+    public IActionResult CheckAvailability()
+    {
+        return this.Ok();
+    }
+
+    /// <summary>
     /// Get all loaded scaffold modules.
     /// </summary>
     /// <returns></returns>

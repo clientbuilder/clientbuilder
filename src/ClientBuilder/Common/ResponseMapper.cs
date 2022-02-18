@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using ClientBuilder.Core.Modules;
 using ClientBuilder.Models;
 
@@ -31,12 +32,12 @@ public static class ResponseMapper
             Files = module.GetFiles().Select(x => new ScaffoldModuleFileSystemItemModel
             {
                 Name = x.Name,
-                Path = x.RelativePath,
+                Path = Path.Combine(x.RelativePath, x.Name),
             }),
             Folders = module.GetFolders().Select(x => new ScaffoldModuleFileSystemItemModel
             {
                 Name = x.Name,
-                Path = x.RelativePath,
+                Path = Path.Combine(x.RelativePath, x.Name),
             }),
         };
     }
