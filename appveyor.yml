@@ -1,0 +1,33 @@
+version: 0.0.{build}
+pull_requests:
+  do_not_increment_build_number: true
+skip_tags: true
+image: Visual Studio 2022
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
+environment:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  PACKAGE_VERSION: $(appveyor_build_version)
+  DOTNET_HOST_PATH: '%ProgramFiles%\dotnet\dotnet.exe'
+before_build:
+- cmd: dotnet restore
+build:
+  project: ClientBuilder.sln
+  publish_nuget: true
+  publish_nuget_symbols: true
+  use_snupkg_format: true
+  include_nuget_references: true
+  publish_aspnet_core: true
+  publish_core_console: true
+  verbosity: minimal
+deploy:
+- provider: NuGet
+  api_key:
+    secure: KTXJUa9bc0au2UfGu6X8FiJbuLMIPD7Qo5Z60MKtc7YM/I1EPDBWls3AF5oumYKT
+  artifact: /.*\.nupkg/
+  on:
+    branch: main
