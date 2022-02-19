@@ -23,8 +23,10 @@ public class SimpleTestModule : ScaffoldModule
         
         this.AddFile(new ScaffoldModuleFile
         {
-            Name = "file1.txt",
+            Name = "file1.json",
             RelativePath = Directory.GetCurrentDirectory(),
+            Template = new JsonFileTemplate(),
+            ContextData = new { Data = "SimpleData" }
         });
     }
 }

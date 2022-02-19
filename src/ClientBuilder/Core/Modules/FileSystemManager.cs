@@ -7,7 +7,7 @@ namespace ClientBuilder.Core.Modules;
 public class FileSystemManager : IFileSystemManager
 {
     /// <inheritdoc/>
-    public void CreateFolder(string folderPath)
+    public virtual void CreateFolder(string folderPath)
     {
         if (string.IsNullOrWhiteSpace(folderPath))
         {
@@ -21,7 +21,7 @@ public class FileSystemManager : IFileSystemManager
     }
 
     /// <inheritdoc/>
-    public void CreateFile(string filePath, string fileContent)
+    public virtual void CreateFile(string filePath, string fileContent)
     {
         if (string.IsNullOrWhiteSpace(filePath))
         {
@@ -32,10 +32,10 @@ public class FileSystemManager : IFileSystemManager
     }
 
     /// <inheritdoc/>
-    public bool IsFolderExists(string folderPath) =>
+    public virtual bool IsFolderExists(string folderPath) =>
         Directory.Exists(folderPath);
 
     /// <inheritdoc/>
-    public bool IsFileExists(string filePath) =>
+    public virtual bool IsFileExists(string filePath) =>
         File.Exists(filePath);
 }

@@ -20,18 +20,18 @@ public class ScaffoldModuleRepository : IScaffoldModuleRepository
     }
 
     /// <inheritdoc/>
-    public async Task<ScaffoldModule> GetModuleAsync(string moduleId) =>
+    public virtual async Task<ScaffoldModule> GetModuleAsync(string moduleId) =>
         (await this.GetModulesAsync()).FirstOrDefault(x => x.Id == moduleId);
 
     /// <inheritdoc/>
-    public async Task<IReadOnlyCollection<ScaffoldModule>> GetModulesAsync() =>
+    public virtual async Task<IReadOnlyCollection<ScaffoldModule>> GetModulesAsync() =>
         (await this.scaffoldModuleFactory.BuildScaffoldModulesAsync())
         .OrderBy(x => x.Order)
         .ToList()
         .AsReadOnly();
 
     /// <inheritdoc/>
-    public async Task<IReadOnlyCollection<ScaffoldModule>> GetModulesByClientIdAsync(string clientId) =>
+    public virtual async Task<IReadOnlyCollection<ScaffoldModule>> GetModulesByClientIdAsync(string clientId) =>
         (await this.GetModulesAsync())
         .OrderBy(x => x.Order)
         .Where(x => x.ClientId == clientId)
@@ -39,7 +39,7 @@ public class ScaffoldModuleRepository : IScaffoldModuleRepository
         .AsReadOnly();
 
     /// <inheritdoc/>
-    public async Task<IReadOnlyCollection<ScaffoldModule>> GetModulesByInstanceAsync(InstanceType type) =>
+    public virtual async Task<IReadOnlyCollection<ScaffoldModule>> GetModulesByInstanceAsync(InstanceType type) =>
         (await this.GetModulesAsync())
         .OrderBy(x => x.Order)
         .Where(x => x.Type == type)
