@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using ClientBuilder.Core.Modules;
 using ClientBuilder.Tests.Samples.Templates;
+using ClientBuilder.Tests.Shared;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -40,9 +41,10 @@ public class FileTemplatesTests
             .Replace("\t", string.Empty)
             .Replace(" ", string.Empty);
         
-        fileContent
+        TestUtilities
+            .NormalizeJson(fileContent)
             .Should()
-            .Be("{\"sampleData\":\"ClientBuilder123\"}");
+            .Be(TestUtilities.NormalizeJson("{\"sampleData\":\"ClientBuilder123\"}"));
     }
     
     [Fact]
@@ -61,8 +63,9 @@ public class FileTemplatesTests
             .Replace("\t", string.Empty)
             .Replace(" ", string.Empty);
         
-        fileContent
+        TestUtilities
+            .NormalizeJson(fileContent)
             .Should()
-            .Be("{\"sample_data\":\"ClientBuilder123\"}");
+            .Be(TestUtilities.NormalizeJson("{\"sample_data\":\"ClientBuilder123\"}"));
     }
 }

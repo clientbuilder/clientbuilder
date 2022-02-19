@@ -6,6 +6,7 @@ using ClientBuilder.Common;
 using ClientBuilder.Core.Modules;
 using ClientBuilder.TestAssembly.Modules.SimpleTest;
 using ClientBuilder.Tests.Fakes;
+using ClientBuilder.Tests.Shared;
 using FluentAssertions;
 using Moq;
 using Xunit;
@@ -72,15 +73,14 @@ public class ScaffoldModuleGeneratorTests
             .Should()
             .Be(Path.Combine(Directory.GetCurrentDirectory(), "file1.json"));
 
-        this.fileSystemManager
-            .CreatedFiles
-            .First()
-            .Value
-            .Replace("\r\n", string.Empty)
-            .Replace("\t", string.Empty)
-            .Replace(" ", string.Empty)
+        TestUtilities
+            .NormalizeJson(
+                this.fileSystemManager
+                .CreatedFiles
+                .First()
+                .Value)
             .Should()
-            .Be("{\"data\":\"SimpleData\"}");
+            .Be(TestUtilities.NormalizeJson("{\"data\":\"SimpleData\"}"));
     }
 
     private IScaffoldModuleGenerator GetSubject(IScaffoldModuleRepository repository)
