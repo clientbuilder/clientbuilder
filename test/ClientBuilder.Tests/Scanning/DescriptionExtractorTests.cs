@@ -23,7 +23,6 @@ public class DescriptionExtractorTests
                 Name = "SimpleModelWithPrimitives",
                 FullName = "ClientBuilder.Tests.Samples.SimpleModelWithPrimitives",
                 FullNameWithGeneric = "ClientBuilder.Tests.Samples.SimpleModelWithPrimitives",
-                ClientTypeName = "SimpleModelWithPrimitives",
                 IsCollection = false,
                 IsNullable = true,
                 IsEnum = false,

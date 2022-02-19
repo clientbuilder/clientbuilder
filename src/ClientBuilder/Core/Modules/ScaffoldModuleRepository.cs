@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ClientBuilder.Common;
 
 namespace ClientBuilder.Core.Modules;
@@ -19,18 +20,29 @@ public class ScaffoldModuleRepository : IScaffoldModuleRepository
     }
 
     /// <inheritdoc/>
-    public ScaffoldModule GetModule(string moduleId) =>
-        this.GetModules().FirstOrDefault(x => x.Id == moduleId);
+    public async Task<ScaffoldModule> GetModuleAsync(string moduleId) =>
+        (await this.GetModulesAsync()).FirstOrDefault(x => x.Id == moduleId);
 
     /// <inheritdoc/>
-    public IList<ScaffoldModule> GetModules() =>
-        this.scaffoldModuleFactory.BuildScaffoldModules().ToList();
+    public async Task<IReadOnlyCollection<ScaffoldModule>> GetModulesAsync() =>
+        (await this.scaffoldModuleFactory.BuildScaffoldModulesAsync())
+        .OrderBy(x => x.Order)
+        .ToList()
+        .AsReadOnly();
 
     /// <inheritdoc/>
-    public IList<ScaffoldModule> GetModulesByClientId(string clientId) =>
-        this.GetModules().Where(x => x.ClientId == clientId).ToList();
+    public async Task<IReadOnlyCollection<ScaffoldModule>> GetModulesByClientIdAsync(string clientId) =>
+        (await this.GetModulesAsync())
+        .OrderBy(x => x.Order)
+        .Where(x => x.ClientId == clientId)
+        .ToList()
+        .AsReadOnly();
 
     /// <inheritdoc/>
-    public IList<ScaffoldModule> GetModulesByInstance(InstanceType type) =>
-        this.GetModules().Where(x => x.Type == type).ToList();
+    public async Task<IReadOnlyCollection<ScaffoldModule>> GetModulesByInstanceAsync(InstanceType type) =>
+        (await this.GetModulesAsync())
+        .OrderBy(x => x.Order)
+        .Where(x => x.Type == type)
+        .ToList()
+        .AsReadOnly();
 }

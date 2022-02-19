@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ClientBuilder.Core.Modules;
 
@@ -11,5 +12,5 @@ public interface IScaffoldModuleFactory
     /// Builds scaffold modules by using existing application setup and request.
     /// </summary>
     /// <returns></returns>
-    IEnumerable<ScaffoldModule> BuildScaffoldModules();
+    Task<IEnumerable<ScaffoldModule>> BuildScaffoldModulesAsync();
 }

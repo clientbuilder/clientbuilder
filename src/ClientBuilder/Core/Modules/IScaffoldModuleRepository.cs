@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using ClientBuilder.Common;
 
 namespace ClientBuilder.Core.Modules;
@@ -13,25 +14,25 @@ public interface IScaffoldModuleRepository
     /// </summary>
     /// <param name="moduleId"></param>
     /// <returns></returns>
-    ScaffoldModule GetModule(string moduleId);
+    Task<ScaffoldModule> GetModuleAsync(string moduleId);
 
     /// <summary>
     /// Gets list of all scaffold modules.
     /// </summary>
     /// <returns></returns>
-    IList<ScaffoldModule> GetModules();
+    Task<IReadOnlyCollection<ScaffoldModule>> GetModulesAsync();
 
     /// <summary>
     /// Get modules by client id.
     /// </summary>
     /// <param name="clientId"></param>
     /// <returns></returns>
-    IList<ScaffoldModule> GetModulesByClientId(string clientId);
+    Task<IReadOnlyCollection<ScaffoldModule>> GetModulesByClientIdAsync(string clientId);
 
     /// <summary>
     /// Get modules by instance type.
     /// </summary>
     /// <param name="type"></param>
     /// <returns></returns>
-    IList<ScaffoldModule> GetModulesByInstance(InstanceType type);
+    Task<IReadOnlyCollection<ScaffoldModule>> GetModulesByInstanceAsync(InstanceType type);
 }

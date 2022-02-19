@@ -26,7 +26,6 @@ public static class ResponseMapper
             ScaffoldTypeName = module.ScaffoldTypeName,
             SourceDirectory = module.SourceDirectory,
             Type = module.Type,
-            Locked = module.Locked,
             Generated = module.Generated,
             ClientId = module.ClientId,
             Files = module.GetFiles().Select(x => new ScaffoldModuleFileSystemItemModel

@@ -50,11 +50,6 @@ public class ScaffoldModuleModel
     public bool Generated { get; set; }
 
     /// <summary>
-    /// <inheritdoc cref="ScaffoldModule.Locked"/>
-    /// </summary>
-    public bool Locked { get; set; }
-
-    /// <summary>
     /// <inheritdoc cref="ScaffoldModule.SourceDirectory"/>
     /// </summary>
     public string SourceDirectory { get; set; }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ClientBuilder.Common;
 using ClientBuilder.Core.Modules;
 using ClientBuilder.Exceptions;
@@ -61,9 +62,10 @@ public sealed class ScaffoldApiController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [HttpGet("modules")]
-    public IActionResult GetAllModules()
+    public async Task<IActionResult> GetAllModules()
     {
-        return this.Ok(this.scaffoldModuleRepository.GetModules().Select(ResponseMapper.MapToModel));
+        var modules = await this.scaffoldModuleRepository.GetModulesAsync();
+        return this.Ok(modules.Select(ResponseMapper.MapToModel));
     }
 
     /// <summary>
@@ -72,21 +74,21 @@ public sealed class ScaffoldApiController : ControllerBase
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost("generate")]
-    public IActionResult GenerateModule([FromBody]GenerationByIdRequest request)
+    public async Task<IActionResult> GenerateModule([FromBody]GenerationByIdRequest request)
     {
         var modulesForGeneration = new List<ScaffoldModule>();
         if (string.IsNullOrWhiteSpace(request.ModuleId))
         {
-            var modules = this.scaffoldModuleRepository.GetModules();
+            var modules = await this.scaffoldModuleRepository.GetModulesAsync();
             modulesForGeneration.AddRange(modules);
         }
         else
         {
-            var targetModule = this.scaffoldModuleRepository.GetModule(request.ModuleId);
+            var targetModule = await this.scaffoldModuleRepository.GetModuleAsync(request.ModuleId);
             modulesForGeneration.Add(targetModule);
         }
 
-        return this.TriggerGeneration(modulesForGeneration);
+        return await this.TriggerGenerationAsync(modulesForGeneration);
     }
 
     /// <summary>
@@ -95,10 +97,10 @@ public sealed class ScaffoldApiController : ControllerBase
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost("generate/by-instance")]
-    public IActionResult GenerateMobileModules([FromBody]GenerationByInstanceTypeRequest request)
+    public async Task<IActionResult> GenerateMobileModules([FromBody]GenerationByInstanceTypeRequest request)
     {
-        var modules = this.scaffoldModuleRepository.GetModulesByInstance(request.InstanceType);
-        return this.TriggerGeneration(modules);
+        var modules = await this.scaffoldModuleRepository.GetModulesByInstanceAsync(request.InstanceType);
+        return await this.TriggerGenerationAsync(modules);
     }
 
     /// <summary>
@@ -108,17 +110,17 @@ public sealed class ScaffoldApiController : ControllerBase
     /// <returns></returns>
     [HttpPost]
     [Route("generate/by-client")]
-    public IActionResult GenerateModulesByParentModuleId([FromBody]GenerationByClientIdRequest request)
+    public async Task<IActionResult> GenerateModulesByParentModuleId([FromBody]GenerationByClientIdRequest request)
     {
-        var modules = this.scaffoldModuleRepository.GetModulesByClientId(request.ClientId);
-        return this.TriggerGeneration(modules);
+        var modules = await this.scaffoldModuleRepository.GetModulesByClientIdAsync(request.ClientId);
+        return await this.TriggerGenerationAsync(modules);
     }
 
-    private IActionResult TriggerGeneration(IEnumerable<ScaffoldModule> modules)
+    private async Task<IActionResult> TriggerGenerationAsync(IEnumerable<ScaffoldModule> modules)
     {
         try
         {
-            var result = this.scaffoldModuleGenerator.Generate(modules.Select(x => x.Id));
+            var result = await this.scaffoldModuleGenerator.GenerateAsync(modules.Select(x => x.Id));
             return this.Ok(result);
         }
         catch (Exception ex)

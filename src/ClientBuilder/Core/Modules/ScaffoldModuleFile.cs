@@ -33,6 +33,11 @@ public class ScaffoldModuleFile
     public object ContextData { get; set; }
 
     /// <summary>
+    /// Flag that indicates whether the module generated file is locked for changes or not.
+    /// </summary>
+    public bool Locked { get; set; } = true;
+
+    /// <summary>
     /// Builds content of the file content.
     /// </summary>
     /// <returns></returns>

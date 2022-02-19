@@ -32,10 +32,6 @@ public class FileSystemManager : IFileSystemManager
     }
 
     /// <inheritdoc/>
-    public string CombinePaths(params string[] paths) =>
-        Path.Combine(paths);
-
-    /// <inheritdoc/>
     public bool IsFolderExists(string folderPath) =>
         Directory.Exists(folderPath);
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using ClientBuilder.Common;
 using ClientBuilder.Models;
 
@@ -26,23 +28,24 @@ public class ScaffoldModuleGenerator : IScaffoldModuleGenerator
     }
 
     /// <inheritdoc/>
-    public GenerationResult Generate(IEnumerable<string> modulesIds)
+    public async Task<GenerationResult> GenerateAsync(IEnumerable<string> modulesIds)
     {
-        var targetModules = this.scaffoldModuleRepository.GetModules().Where(x => modulesIds.Contains(x.Id));
+        var targetModules = (await this.scaffoldModuleRepository.GetModulesAsync())
+            .Where(x => modulesIds.Contains(x.Id));
         return this.GenerateModules(targetModules);
     }
 
     /// <inheritdoc/>
-    public GenerationResult Generate(InstanceType instanceType)
+    public async Task<GenerationResult> GenerateAsync(InstanceType instanceType)
     {
-        var targetModules = this.scaffoldModuleRepository.GetModulesByInstance(instanceType);
+        var targetModules = await this.scaffoldModuleRepository.GetModulesByInstanceAsync(instanceType);
         return this.GenerateModules(targetModules);
     }
 
     /// <inheritdoc/>
-    public GenerationResult Generate(string clientId)
+    public async Task<GenerationResult> GenerateAsync(string clientId)
     {
-        var targetModules = this.scaffoldModuleRepository.GetModulesByClientId(clientId);
+        var targetModules = await this.scaffoldModuleRepository.GetModulesByClientIdAsync(clientId);
         return this.GenerateModules(targetModules);
     }
 
@@ -97,7 +100,7 @@ public class ScaffoldModuleGenerator : IScaffoldModuleGenerator
             {
                 try
                 {
-                    var folderPath = this.fileSystemManager.CombinePaths(module.SourceDirectory, folder.RelativePath, folder.Name);
+                    var folderPath = Path.Combine(module.SourceDirectory, folder.RelativePath, folder.Name);
                     this.fileSystemManager.CreateFolder(folderPath);
                 }
                 catch (Exception ex)
@@ -112,9 +115,9 @@ public class ScaffoldModuleGenerator : IScaffoldModuleGenerator
                 try
                 {
                     string fileContent = file.BuildContent();
-                    string filePath = this.fileSystemManager.CombinePaths(module.SourceDirectory, file.RelativePath, file.Name);
+                    string filePath = Path.Combine(module.SourceDirectory, file.RelativePath, file.Name);
                     bool isFileExists = this.fileSystemManager.IsFileExists(filePath);
-                    if (!isFileExists || module.Locked)
+                    if (!isFileExists || file.Locked)
                     {
                         this.fileSystemManager.CreateFile(filePath, fileContent);
                     }

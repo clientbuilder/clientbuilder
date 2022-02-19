@@ -19,13 +19,6 @@ public interface IFileSystemManager
     void CreateFile(string filePath, string fileContent);
 
     /// <summary>
-    /// Combine paths into a single path.
-    /// </summary>
-    /// <param name="paths"></param>
-    /// <returns></returns>
-    string CombinePaths(params string[] paths);
-
-    /// <summary>
     /// Checks whether a folder exists.
     /// </summary>
     /// <param name="folderPath"></param>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using ClientBuilder.Options;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,7 +33,7 @@ public class ScaffoldModuleFactory : IScaffoldModuleFactory
     }
 
     /// <inheritdoc/>
-    public IEnumerable<ScaffoldModule> BuildScaffoldModules()
+    public async Task<IEnumerable<ScaffoldModule>> BuildScaffoldModulesAsync()
     {
         var modules = new List<ScaffoldModule>();
 
@@ -50,7 +51,7 @@ public class ScaffoldModuleFactory : IScaffoldModuleFactory
             if (scopedServiceProvider.GetService(scaffoldModulesType) is ScaffoldModule moduleInstance)
             {
                 moduleInstance.SetSourceDirectory(sourceDirectory);
-                moduleInstance.Setup();
+                await moduleInstance.SetupAsync();
                 moduleInstance.ValidateModule();
                 moduleInstance.Sync();
                 modules.Add(moduleInstance);
