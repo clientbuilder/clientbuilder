@@ -28,5 +28,7 @@ public class SimpleTestModule : ScaffoldModule
             Template = new JsonFileTemplate(),
             ContextData = new { Data = "SimpleData" }
         });
+
+        await Task.CompletedTask;
     }
 }

@@ -1,4 +1,4 @@
-name: .NET Core
+name: .NET Build
 
 env:
   PACKAGE_VERSION: 0.0.0.0
