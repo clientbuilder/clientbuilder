@@ -2,10 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using ClientBuilder.DataAnnotations;
 using ClientBuilder.Extensions;
 using ClientBuilder.Options;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ClientBuilder.Core.Scanning;
@@ -13,14 +15,19 @@ namespace ClientBuilder.Core.Scanning;
 /// <inheritdoc />
 public class DescriptionExtractor : IDescriptionExtractor
 {
+    private readonly ILogger<DescriptionExtractor> logger;
     private readonly ClientBuilderOptions options;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DescriptionExtractor"/> class.
     /// </summary>
     /// <param name="optionsAccessor"></param>
-    public DescriptionExtractor(IOptions<ClientBuilderOptions> optionsAccessor)
+    /// <param name="logger"></param>
+    public DescriptionExtractor(
+        IOptions<ClientBuilderOptions> optionsAccessor,
+        ILogger<DescriptionExtractor> logger)
     {
+        this.logger = logger;
         this.options = optionsAccessor.Value;
     }
 
@@ -41,7 +48,6 @@ public class DescriptionExtractor : IDescriptionExtractor
             description.IsClass = type.IsClass;
             description.IsInterface = type.IsInterface;
             description.IsCollection = type.GetInterface(nameof(IEnumerable)) != null && type != typeof(string);
-            description.IsGenericType = type.GetGenericArguments()?.Any() ?? false;
 
             if (description.IsCollection)
             {
@@ -84,10 +90,10 @@ public class DescriptionExtractor : IDescriptionExtractor
                 description.FullName = type.FullName;
             }
 
-            if (!isPrimitiveType && description.IsGenericType && !description.IsCollection)
+            if (!isPrimitiveType && type.IsGenericType && !description.IsCollection)
             {
-                description.Name = this.GetGenericTypeClearName(description.Name);
-                description.FullName = this.GetGenericTypeClearName(description.FullName);
+                description.Name = this.GetGenericTypeClearName(type.Name);
+                description.FullName = this.GetGenericTypeClearName(type.FullName);
                 description.GenericTypes = type.GetGenericArguments().Select(x => this.ExtractTypeDescription(x)).ToArray();
 
                 var genericTypeDefinition = type.GetGenericTypeDefinition();
@@ -133,8 +139,10 @@ public class DescriptionExtractor : IDescriptionExtractor
 
             return description;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            this.logger.LogDebug("Problematic type: {Type}", type?.ToString());
+            this.logger.LogError(ex, "Error during type description extraction");
             throw new ArgumentException($"Invalid type extraction for type '{type.FullName}'");
         }
     }
@@ -200,6 +208,11 @@ public class DescriptionExtractor : IDescriptionExtractor
             if (property.Type.IsComplex && property.Type.FullName != classDescription.FullName)
             {
                 resultClasses.Add(property.Type);
+                if (property.Type.BaseType != null)
+                {
+                    resultClasses.Add(property.Type.BaseType);
+                }
+
                 resultClasses.AddRange(this.ExtractInnerClassDescriptions(property.Type));
             }
         }

@@ -4,7 +4,9 @@ using ClientBuilder.Options;
 using ClientBuilder.Tests.Fakes;
 using ClientBuilder.Tests.Samples;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Moq;
 using Xunit;
 
 namespace ClientBuilder.Tests.Scanning;
@@ -113,6 +115,6 @@ public class DescriptionExtractorTests
     private IDescriptionExtractor GetSubject(IOptions<ClientBuilderOptions> optionsAccessor = null)
     {
         var optionsAccessorInstance = optionsAccessor ?? new OptionsAccessorFake();
-        return new DescriptionExtractor(optionsAccessorInstance);
+        return new DescriptionExtractor(optionsAccessorInstance, Mock.Of<ILogger<DescriptionExtractor>>());
     }
 }

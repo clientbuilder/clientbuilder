@@ -140,7 +140,7 @@ public class SourceRepositoryTests
         var optionsAccessor = new OptionsAccessorFake();
         return new SourceRepository(
             new AssemblyScanner(optionsAccessor),
-            new DescriptionExtractor(optionsAccessor),
+            new DescriptionExtractor(optionsAccessor, Mock.Of<ILogger<DescriptionExtractor>>()),
             Mock.Of<ILogger<SourceRepository>>());
     }
 }

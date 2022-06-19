@@ -153,7 +153,7 @@ public class SourceRepository : ISourceRepository
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error on creating endpoint from controller ({FullName}) action ({Name})", actionInfo.Name, controllerType.FullName);
+            this.logger.LogError(ex, "Error on creating endpoint from controller ({FullName}) action ({Name})", controllerType.FullName, actionInfo.Name);
             return null;
         }
     }

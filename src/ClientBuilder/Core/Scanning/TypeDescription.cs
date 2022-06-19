@@ -51,7 +51,7 @@ public class TypeDescription
     /// <summary>
     /// Indicates that the type is generic type or not.
     /// </summary>
-    public bool IsGenericType { get; set; }
+    public bool IsGenericType => this.GenericTypes != null && this.GenericTypes.Any();
 
     /// <summary>
     /// Generic type description of the type.
