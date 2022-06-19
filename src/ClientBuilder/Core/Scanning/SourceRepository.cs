@@ -35,13 +35,15 @@ public class SourceRepository : ISourceRepository
     }
 
     /// <inheritdoc/>
-    public IEnumerable<ControllerAction> GetAllControllerActions()
+    public IEnumerable<ControllerAction> GetAllControllerActions(Func<SourceAssemblyType, bool> filter = null)
     {
         try
         {
+            Func<SourceAssemblyType, bool> typeFilter = filter ?? (_ => true);
             var controllersTypes = this.assemblyScanner
                 .FetchSourceTypes()
                 .Where(x => x.Type.HasCustomAttribute<IncludeControllerAttribute>())
+                .Where(typeFilter)
                 .Select(x => x.Type);
 
             List<ControllerAction> resultActions = new List<ControllerAction>();
@@ -73,20 +75,20 @@ public class SourceRepository : ISourceRepository
     }
 
     /// <inheritdoc/>
-    public IEnumerable<TypeDescription> GetAllControllerActionsClasses()
+    public IEnumerable<TypeDescription> GetAllControllerActionsClasses(IEnumerable<ControllerAction> controllerActions = null)
     {
         try
         {
-            var endpoints = this.GetAllControllerActions();
+            var actions = controllerActions ?? this.GetAllControllerActions();
             var classes = new List<TypeDescription>();
-            foreach (var endpoint in endpoints)
+            foreach (var action in actions)
             {
-                if (!endpoint.Response.Void && endpoint.Response.Type.IsComplex)
+                if (!action.Response.Void && action.Response.Type.IsComplex)
                 {
-                    classes.Add(endpoint.Response.Type);
+                    classes.Add(action.Response.Type);
                 }
 
-                classes.AddRange(endpoint.Arguments.Where(x => x.Type.IsComplex).Select(x => x.Type).ToList());
+                classes.AddRange(action.Arguments.Where(x => x.Type.IsComplex).Select(x => x.Type).ToList());
             }
 
             return this.descriptionExtractor.ExtractUniqueClassesFromClasses(classes);
@@ -99,13 +101,15 @@ public class SourceRepository : ISourceRepository
     }
 
     /// <inheritdoc/>
-    public IEnumerable<TypeDescription> GetAllRegisteredEnums()
+    public IEnumerable<TypeDescription> GetAllRegisteredEnums(Func<SourceAssemblyType, bool> filter = null)
     {
         try
         {
+            Func<SourceAssemblyType, bool> typeFilter = filter ?? (_ => true);
             var enumsTypeDescriptions = this.assemblyScanner
                 .FetchSourceTypes()
                 .Where(x => x.Type.IsEnum)
+                .Where(typeFilter)
                 .Select(x => this.descriptionExtractor.ExtractTypeDescription(x.Type))
                 .ToList();
 

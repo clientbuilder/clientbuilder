@@ -1,4 +1,5 @@
-﻿using ClientBuilder.Core.Scanning;
+﻿using System.Linq;
+using ClientBuilder.Core.Scanning;
 using ClientBuilder.Options;
 using ClientBuilder.Tests.Fakes;
 using ClientBuilder.Tests.Samples;
@@ -22,12 +23,11 @@ public class DescriptionExtractorTests
             {
                 Name = "SimpleModelWithPrimitives",
                 FullName = "ClientBuilder.Tests.Samples.SimpleModelWithPrimitives",
-                FullNameWithGeneric = "ClientBuilder.Tests.Samples.SimpleModelWithPrimitives",
                 IsCollection = false,
                 IsNullable = true,
                 IsEnum = false,
                 IsGenericType = false,
-                GenericType = default(TypeDescription),
+                GenericTypes = default(TypeDescription[]),
                 IsComplex = true
             });
 
@@ -55,6 +55,59 @@ public class DescriptionExtractorTests
             .Properties
             .Should()
             .ContainSingle(x => x.Name == "StartDate" && x.Type.IsComplex == false && x.Type.Name == "DateTime");
+    }
+
+    [Fact]
+    public void ExtractTypeDescription_OnComplexGenericBasedThreeModel_ShouldReturnProperDescription()
+    {
+        var descriptionExtractor = this.GetSubject();
+        var modelDescription = descriptionExtractor.ExtractTypeDescription(typeof(MyDog));
+
+        var baseModelType = modelDescription.BaseType;
+            
+        Assert.NotNull(baseModelType);
+
+        baseModelType
+            .IsGenericType
+            .Should()
+            .Be(true);
+
+        baseModelType
+            .GenericTypes
+            .Should()
+            .HaveCount(2);
+
+        baseModelType
+            .GenericTypeDescription
+            .IsGenericType
+            .Should()
+            .Be(true);
+
+        baseModelType
+            .GenericTypeDescription
+            .GenericTypes
+            .Should()
+            .HaveCount(2);
+
+        baseModelType
+            .GenericTypeDescription
+            .GenericTypes
+            .Select(x => x.Name)
+            .Should()
+            .BeEquivalentTo("TPreference", "TDate");
+
+        baseModelType
+            .HasOwnGenericBasedClass
+            .Should()
+            .Be(true);
+        
+        modelDescription
+            .Properties
+            .First(x => x.Name == "Friends")
+            .Type
+            .HasOwnGenericBasedClass
+            .Should()
+            .Be(false);
     }
     
     private IDescriptionExtractor GetSubject(IOptions<ClientBuilderOptions> optionsAccessor = null)

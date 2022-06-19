@@ -29,11 +29,6 @@ public class TypeDescription
     public string FullName { get; set; }
 
     /// <summary>
-    /// Full name of the class with the generic suffix.
-    /// </summary>
-    public string FullNameWithGeneric => this.FullName + this.GenericTypeSuffix;
-
-    /// <summary>
     /// List of all properties of the class.
     /// </summary>
     public List<PropertyDescription> Properties { get; set; }
@@ -61,12 +56,17 @@ public class TypeDescription
     /// <summary>
     /// Generic type description of the type.
     /// </summary>
-    public TypeDescription GenericType { get; set; }
+    public TypeDescription[] GenericTypes { get; set; }
 
     /// <summary>
-    /// Generic type description suffix based on the <see cref="GenericType"/>.
+    /// Generic type description.
     /// </summary>
-    public string GenericTypeSuffix => (this.IsGenericType && this.GenericType != null) ? $"Of{this.GenericType?.Name}" : string.Empty;
+    public TypeDescription GenericTypeDescription { get; set; }
+
+    /// <summary>
+    /// Base type description of the type.
+    /// </summary>
+    public TypeDescription BaseType { get; set; }
 
     /// <summary>
     /// Indicates that the type is primitive type (false) or not (true).
@@ -77,6 +77,21 @@ public class TypeDescription
     /// Enumeration values in case when type is enum.
     /// </summary>
     public Dictionary<string, int> EnumValues { get; set; }
+
+    /// <summary>
+    /// Flag that provides information whether the type is a class.
+    /// </summary>
+    public bool IsClass { get; set; }
+
+    /// <summary>
+    /// Flag that provides information whether the type is an interface.
+    /// </summary>
+    public bool IsInterface { get; set; }
+
+    /// <summary>
+    /// Flag that indicates whether the type is generic and is extracted from class definition or from property definition.
+    /// </summary>
+    public bool HasOwnGenericBasedClass => this.BaseType != null && this.IsGenericType;
 
     /// <summary>
     /// Gets client type based on specified type mapper.

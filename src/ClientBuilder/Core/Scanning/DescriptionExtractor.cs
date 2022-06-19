@@ -38,6 +38,8 @@ public class DescriptionExtractor : IDescriptionExtractor
             }
 
             TypeDescription description = new TypeDescription();
+            description.IsClass = type.IsClass;
+            description.IsInterface = type.IsInterface;
             description.IsCollection = type.GetInterface(nameof(IEnumerable)) != null && type != typeof(string);
             description.IsGenericType = type.GetGenericArguments()?.Any() ?? false;
 
@@ -85,7 +87,14 @@ public class DescriptionExtractor : IDescriptionExtractor
             if (!isPrimitiveType && description.IsGenericType && !description.IsCollection)
             {
                 description.Name = this.GetGenericTypeClearName(description.Name);
-                description.GenericType = this.ExtractTypeDescription(type.GetGenericArguments().FirstOrDefault());
+                description.FullName = this.GetGenericTypeClearName(description.FullName);
+                description.GenericTypes = type.GetGenericArguments().Select(x => this.ExtractTypeDescription(x)).ToArray();
+
+                var genericTypeDefinition = type.GetGenericTypeDefinition();
+                if (genericTypeDefinition != type)
+                {
+                    description.GenericTypeDescription = this.ExtractTypeDescription(genericTypeDefinition);
+                }
             }
 
             if (description.IsEnum)
@@ -114,6 +123,11 @@ public class DescriptionExtractor : IDescriptionExtractor
                         propertyDescription.DefaultValue = this.GetDefault(propertyInfo.PropertyType)?.ToString() ?? "null";
                         description.Properties.Add(propertyDescription);
                     }
+                }
+
+                if (type.BaseType != null && type.BaseType != typeof(object))
+                {
+                    description.BaseType = this.ExtractTypeDescription(type.BaseType);
                 }
             }
 
@@ -167,7 +181,7 @@ public class DescriptionExtractor : IDescriptionExtractor
         var resultClasses = new List<TypeDescription>();
         foreach (var tempClass in tempClasses)
         {
-            if (resultClasses.All(x => x.FullNameWithGeneric != tempClass.FullNameWithGeneric))
+            if (resultClasses.All(x => x.FullName != tempClass.FullName))
             {
                 resultClasses.Add(tempClass);
             }
@@ -201,6 +215,10 @@ public class DescriptionExtractor : IDescriptionExtractor
         {
             tempClasses.Add(classItem);
             tempClasses.AddRange(this.ExtractInnerClassDescriptions(classItem));
+            if (classItem.IsGenericType)
+            {
+                tempClasses.AddRange(classItem.GenericTypes);
+            }
         }
 
         var resultEnumsTypes = new List<TypeDescription>();
@@ -209,7 +227,7 @@ public class DescriptionExtractor : IDescriptionExtractor
         {
             foreach (var tempClassProperty in tempClass.Properties)
             {
-                if (tempClassProperty.Type.IsEnum && resultEnumsTypes.All(x => x.FullNameWithGeneric != tempClassProperty.Type.FullNameWithGeneric))
+                if (tempClassProperty.Type.IsEnum && resultEnumsTypes.All(x => x.FullName != tempClassProperty.Type.FullName))
                 {
                     resultEnumsTypes.Add(tempClassProperty.Type);
                 }
