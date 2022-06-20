@@ -3,7 +3,7 @@
 /// <summary>
 /// Simplified description for a response extracted via reflection.
 /// </summary>
-public class ResponseDescription
+public record ResponseDescription
 {
     /// <summary>
     /// Indicates whether the response is void.

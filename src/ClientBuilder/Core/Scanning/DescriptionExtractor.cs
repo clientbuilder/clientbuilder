@@ -4,9 +4,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using ClientBuilder.DataAnnotations;
 using ClientBuilder.Extensions;
 using ClientBuilder.Options;
+using Essentials.Extensions;
+using Essentials.Functions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -37,14 +40,31 @@ public class DescriptionExtractor : IDescriptionExtractor
         Type parentType = null,
         TypeDescription parentDescription = null)
     {
+        if (type == null)
+        {
+            return new TypeDescription
+            {
+                IsValid = false,
+            };
+        }
+
+        if (IsProtectedType(type))
+        {
+            return new TypeDescription
+            {
+                Name = type.Name,
+                FullName = type.FullName,
+                SourceType = type,
+                IsValid = false,
+            };
+        }
+
+        this.logger.LogInformation("Extracting type: '{Type}'", type);
+
         try
         {
-            if (type == null)
-            {
-                return new TypeDescription();
-            }
-
             TypeDescription description = new TypeDescription();
+            description.SourceType = type;
             description.IsClass = type.IsClass;
             description.IsInterface = type.IsInterface;
             description.IsCollection = type.GetInterface(nameof(IEnumerable)) != null && type != typeof(string);
@@ -65,7 +85,13 @@ public class DescriptionExtractor : IDescriptionExtractor
 
             if (type == parentType)
             {
-                return parentDescription;
+                return parentDescription with
+                {
+#pragma warning disable SA1101
+                    IsCollection = description.IsCollection,
+                    IsNullable = description.IsNullable,
+#pragma warning restore SA1101
+                };
             }
 
             if (this.options.PrimitiveTypes.ContainsKey(type))
@@ -92,8 +118,8 @@ public class DescriptionExtractor : IDescriptionExtractor
 
             if (!isPrimitiveType && type.IsGenericType && !description.IsCollection)
             {
-                description.Name = this.GetGenericTypeClearName(type.Name);
-                description.FullName = this.GetGenericTypeClearName(type.FullName);
+                description.Name = GetGenericTypeClearName(type.Name);
+                description.FullName = GetGenericTypeClearName(type.FullName);
                 description.GenericTypes = type.GetGenericArguments().Select(x => this.ExtractTypeDescription(x)).ToArray();
 
                 var genericTypeDefinition = type.GetGenericTypeDefinition();
@@ -107,6 +133,7 @@ public class DescriptionExtractor : IDescriptionExtractor
             {
                 description.Name = type.Name;
                 description.FullName = type.FullName;
+                description.EnumValueItems = GetEnumValueItems(type);
                 description.EnumValues = new Dictionary<string, int>();
                 var enumValues = Enum.GetValues(type);
                 foreach (var value in enumValues)
@@ -126,7 +153,7 @@ public class DescriptionExtractor : IDescriptionExtractor
                         propertyDescription.Name = propertyInfo.Name;
                         propertyDescription.ReadOnly = propertyInfo.HasCustomAttribute<ReadOnlyAttribute>();
                         propertyDescription.Type = this.ExtractTypeDescription(propertyInfo.PropertyType, type, description);
-                        propertyDescription.DefaultValue = this.GetDefault(propertyInfo.PropertyType)?.ToString() ?? "null";
+                        propertyDescription.DefaultValue = GetDefault(propertyInfo.PropertyType)?.ToString() ?? "null";
                         description.Properties.Add(propertyDescription);
                     }
                 }
@@ -162,17 +189,24 @@ public class DescriptionExtractor : IDescriptionExtractor
     }
 
     /// <inheritdoc/>
-    public ArgumentDescription ExtractArgumentDescription(string name, Type type)
+    public ArgumentDescription ExtractArgumentDescription(string name, Type type, bool hardcodeAsComplex)
     {
         if (type == null)
         {
             throw new NullReferenceException($"Description argument type for {name} cannot be null");
         }
 
+        var typeDescription = this.ExtractTypeDescription(type);
+        if (hardcodeAsComplex)
+        {
+            typeDescription.IsComplex = true;
+            typeDescription.Hardcoded = true;
+        }
+
         return new ArgumentDescription
         {
             Name = name,
-            Type = this.ExtractTypeDescription(type),
+            Type = typeDescription,
         };
     }
 
@@ -205,7 +239,7 @@ public class DescriptionExtractor : IDescriptionExtractor
         var classProperties = classDescription.Properties;
         foreach (var property in classProperties)
         {
-            if (property.Type.IsComplex && property.Type.FullName != classDescription.FullName)
+            if (property.Type.IsComplex && !property.Type.Hardcoded && property.Type.FullName != classDescription.FullName)
             {
                 resultClasses.Add(property.Type);
                 if (property.Type.BaseType != null)
@@ -250,7 +284,92 @@ public class DescriptionExtractor : IDescriptionExtractor
         return resultEnumsTypes;
     }
 
-    private string GetGenericTypeClearName(string name) => name.Split('`').FirstOrDefault() ?? name;
+    private static bool IsProtectedType(Type type)
+    {
+        var reflectionNamespace = "System.Reflection";
+        if (type.Namespace?.StartsWith(reflectionNamespace) ?? false)
+        {
+            return true;
+        }
 
-    private object GetDefault(Type type) => type.IsValueType ? Activator.CreateInstance(type) : null;
+        if (type.BaseType?.Namespace?.StartsWith(reflectionNamespace) ?? false)
+        {
+            return true;
+        }
+
+        if (type.HasInterface<IEnumerable>())
+        {
+            var targetType = type.GetGenericArguments().FirstOrDefault();
+            if (targetType == null && type.IsArray)
+            {
+                targetType = type.GetElementType();
+            }
+
+            if (targetType?.Namespace?.StartsWith(reflectionNamespace) ?? false)
+            {
+                return true;
+            }
+
+            if (targetType?.BaseType?.Namespace?.StartsWith(reflectionNamespace) ?? false)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static string GetGenericTypeClearName(string name) => name.Split('`').FirstOrDefault() ?? name;
+
+    private static object GetDefault(Type type) => type.IsValueType ? Activator.CreateInstance(type) : null;
+
+    private static IEnumerable<EnumValueItem> GetEnumValueItems(Type enumType)
+    {
+        try
+        {
+            var actualEnumType = Nullable.GetUnderlyingType(enumType) != null ? Nullable.GetUnderlyingType(enumType) : enumType;
+
+            if (actualEnumType.BaseType != typeof(Enum))
+            {
+                return null;
+            }
+
+            List<EnumValueItem> result = new List<EnumValueItem>();
+
+            var enumValues = actualEnumType.GetEnumValues();
+            foreach (var value in enumValues)
+            {
+                int enumValue = (int)Enum.Parse(actualEnumType, value.ToString());
+                var memberInfo = actualEnumType.GetMember(actualEnumType.GetEnumName(value));
+                var keyAttribute = memberInfo.First().GetCustomAttribute<EnumKeyAttribute>();
+                var nameAttribute = memberInfo.First().GetCustomAttribute<EnumNameAttribute>();
+
+                string name = value.ToString();
+                string originalName = name;
+                string friendlyName = StringFunctions.SplitStringByCapitalLetters(originalName);
+                string key = StringFunctions.ConvertToKey(actualEnumType.Name + name);
+
+                if (keyAttribute != null)
+                {
+                    key = keyAttribute.Key;
+                }
+
+                name = nameAttribute != null ? nameAttribute.Name : friendlyName;
+
+                result.Add(new EnumValueItem
+                {
+                    Value = enumValue,
+                    Name = name,
+                    OriginalName = originalName,
+                    Key = key,
+                });
+            }
+
+            return result;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
 }

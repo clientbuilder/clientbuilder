@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using ClientBuilder.Core.Scanning;
 using ClientBuilder.Options;
 using ClientBuilder.Tests.Fakes;
@@ -110,6 +113,48 @@ public class DescriptionExtractorTests
             .HasOwnGenericBasedClass
             .Should()
             .Be(false);
+    }
+
+    [Fact]
+    public void ExtractTypeDescription_OnNullType_ShouldReturnInvalidDescription()
+    {
+        var descriptionExtractor = this.GetSubject();
+        var modelDescription = descriptionExtractor.ExtractTypeDescription(null);
+
+        modelDescription
+            .IsValid
+            .Should()
+            .Be(false);
+    }
+
+    [InlineData(typeof(Type))]
+    [InlineData(typeof(Type[]))]
+    [InlineData(typeof(IEnumerable<Type>))]
+    [InlineData(typeof(PropertyInfo))]
+    [InlineData(typeof(MethodInfo))]
+    [InlineData(typeof(FieldInfo))]
+    [InlineData(typeof(MemberInfo))]
+    [InlineData(typeof(Assembly))]
+    [Theory]
+    public void ExtractTypeDescription_OnReflectionType_ShouldReturnInvalidDescription(Type type)
+    {
+        var descriptionExtractor = this.GetSubject();
+        var modelDescription = descriptionExtractor.ExtractTypeDescription(type);
+
+        modelDescription
+            .IsValid
+            .Should()
+            .Be(false);
+        
+        modelDescription
+            .Name
+            .Should()
+            .Be(type.Name);
+        
+        modelDescription
+            .FullName
+            .Should()
+            .Be(type.FullName);
     }
     
     private IDescriptionExtractor GetSubject(IOptions<ClientBuilderOptions> optionsAccessor = null)

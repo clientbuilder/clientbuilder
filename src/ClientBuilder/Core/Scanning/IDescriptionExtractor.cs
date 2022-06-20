@@ -32,8 +32,9 @@ public interface IDescriptionExtractor
     /// </summary>
     /// <param name="name"></param>
     /// <param name="type"></param>
+    /// <param name="hardcodeAsComplex"></param>
     /// <returns></returns>
-    ArgumentDescription ExtractArgumentDescription(string name, Type type);
+    ArgumentDescription ExtractArgumentDescription(string name, Type type, bool hardcodeAsComplex);
 
     /// <summary>
     /// Extract descriptions from classes types.

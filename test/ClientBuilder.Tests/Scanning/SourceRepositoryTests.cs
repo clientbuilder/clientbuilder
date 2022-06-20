@@ -70,7 +70,7 @@ public class SourceRepositoryTests
     {
         var repository = GetSubject();
         var actions = repository
-            .GetAllControllerActions(x => x.Type.Name != "IncludedController");
+            .GetAllControllerActions(null, x => x.Type.Name != "IncludedController");
         actions
             .Should()
             .HaveCount(1);

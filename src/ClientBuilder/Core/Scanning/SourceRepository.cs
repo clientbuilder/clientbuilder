@@ -35,14 +35,25 @@ public class SourceRepository : ISourceRepository
     }
 
     /// <inheritdoc/>
-    public IEnumerable<ControllerAction> GetAllControllerActions(Func<SourceAssemblyType, bool> filter = null)
+    public IEnumerable<ControllerAction> GetAllControllerActions(IEnumerable<string> groups = null, Func<SourceAssemblyType, bool> filter = null)
     {
         try
         {
+            Func<SourceAssemblyType, bool> groupsFilter = _ => true;
+            if (groups != null && groups.Any())
+            {
+                groupsFilter = x =>
+                {
+                    var attribute = x.Type.GetCustomAttribute<IncludeControllerAttribute>();
+                    return groups.Intersect(attribute.Groups).Any();
+                };
+            }
+
             Func<SourceAssemblyType, bool> typeFilter = filter ?? (_ => true);
             var controllersTypes = this.assemblyScanner
                 .FetchSourceTypes()
                 .Where(x => x.Type.HasCustomAttribute<IncludeControllerAttribute>())
+                .Where(groupsFilter)
                 .Where(typeFilter)
                 .Select(x => x.Type);
 
@@ -122,6 +133,28 @@ public class SourceRepository : ISourceRepository
         }
     }
 
+    /// <inheritdoc/>
+    public IEnumerable<TypeDescription> GetAllManualRegisteredClasses(Func<SourceAssemblyType, bool> filter = null)
+    {
+        try
+        {
+            Func<SourceAssemblyType, bool> typeFilter = filter ?? (_ => true);
+            var classesTypeDescriptions = this.assemblyScanner
+                .FetchSourceTypes()
+                .Where(x => x.Type.IsClass && x.Type.HasCustomAttribute<IncludeElementAttribute>())
+                .Where(typeFilter)
+                .Select(x => this.descriptionExtractor.ExtractTypeDescription(x.Type))
+                .ToList();
+
+            return classesTypeDescriptions;
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "An unexpected error occurred during fetching classes");
+            return new List<TypeDescription>();
+        }
+    }
+
     private ControllerAction BuildAction(MethodInfo actionInfo, Type controllerType)
     {
         try
@@ -146,7 +179,7 @@ public class SourceRepository : ISourceRepository
             currentAction.Arguments = actionInfo
                 .GetParameters()
                 .Where(x => x.GetCustomAttribute<ExcludeElementAttribute>() == null)
-                .Select(x => this.descriptionExtractor.ExtractArgumentDescription(x.Name, x.ParameterType))
+                .Select(x => this.descriptionExtractor.ExtractArgumentDescription(x.Name, x.ParameterType, x.GetCustomAttribute<HardcodeAsComplexAttribute>() != null))
                 .ToList();
 
             return currentAction;

@@ -14,6 +14,7 @@ public static class Defaults
     /// </summary>
     public static readonly Dictionary<Type, string> PrimitiveTypes = new ()
     {
+        { typeof(object), "object" },
         { typeof(bool), "bool" },
         { typeof(string), "string" },
         { typeof(char), "char" },

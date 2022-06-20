@@ -3,7 +3,7 @@
 /// <summary>
 /// Simplified description for a method argument extracted via reflection.
 /// </summary>
-public class ArgumentDescription
+public record ArgumentDescription
 {
     /// <summary>
     /// Name of the argument.

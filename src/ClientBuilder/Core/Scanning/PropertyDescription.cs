@@ -3,7 +3,7 @@
 /// <summary>
 /// Simplified description for a property extracted via reflection.
 /// </summary>
-public class PropertyDescription
+public record PropertyDescription
 {
     /// <summary>
     /// Name of the property.

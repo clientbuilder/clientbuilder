@@ -97,7 +97,7 @@ public sealed class ScaffoldApiController : ControllerBase
     /// <param name="request"></param>
     /// <returns></returns>
     [HttpPost("generate/by-instance")]
-    public async Task<IActionResult> GenerateMobileModules([FromBody]GenerationByInstanceTypeRequest request)
+    public async Task<IActionResult> GenerateModulesByInstance([FromBody]GenerationByInstanceTypeRequest request)
     {
         var modules = await this.scaffoldModuleRepository.GetModulesByInstanceAsync(request.InstanceType);
         return await this.TriggerGenerationAsync(modules);
@@ -110,7 +110,7 @@ public sealed class ScaffoldApiController : ControllerBase
     /// <returns></returns>
     [HttpPost]
     [Route("generate/by-client")]
-    public async Task<IActionResult> GenerateModulesByParentModuleId([FromBody]GenerationByClientIdRequest request)
+    public async Task<IActionResult> GenerateModulesByClientId([FromBody]GenerationByClientIdRequest request)
     {
         var modules = await this.scaffoldModuleRepository.GetModulesByClientIdAsync(request.ClientId);
         return await this.TriggerGenerationAsync(modules);

@@ -2,13 +2,14 @@
 using System.Linq;
 using System.Net.Http;
 using ClientBuilder.Common;
+using Essentials.Extensions;
 
 namespace ClientBuilder.Core.Scanning;
 
 /// <summary>
 /// Model that defines a controller action exposed for the needs of Client Builder.
 /// </summary>
-public class ControllerAction
+public record ControllerAction
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="ControllerAction"/> class.
