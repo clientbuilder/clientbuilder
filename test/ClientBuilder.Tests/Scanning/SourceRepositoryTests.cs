@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Threading.Tasks;
 using ClientBuilder.Core.Scanning;
 using ClientBuilder.TestAssembly.Controllers;
 using ClientBuilder.Tests.Fakes;
+using ClientBuilder.Tests.Samples;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -97,6 +100,188 @@ public class SourceRepositoryTests
     }
 
     [Fact]
+    public void GetAllManualRegisteredClasses_OnStandardInvocation_ShouldReturnCorrectDescriptions()
+    {
+        var assemblyScannerMock = new Mock<AssemblyScanner>(new OptionsAccessorFake());
+        assemblyScannerMock
+            .Setup(x => x.FetchSourceTypes())
+            .Returns(new List<SourceAssemblyType>
+            {
+                new ()
+                {
+                    Type = typeof(SampleModelWithAttribute)
+                },
+                new ()
+                {
+                    Type = typeof(SampleModelWIthoutAttribute)
+                },
+                new ()
+                {
+                    Type = typeof(SampleClassWithAttribute)
+                }
+            });
+        
+        var repository = this.GetSubject(assemblyScannerMock);
+        var descriptions = repository.GetAllManualRegisteredClasses();
+
+        descriptions
+            .Should()
+            .HaveCount(2);
+
+        descriptions
+            .Select(x => x.Name)
+            .Should()
+            .BeEquivalentTo(nameof(SampleModelWithAttribute), nameof(SampleClassWithAttribute));
+    }
+    
+    [Fact]
+    public void GetAllManualRegisteredClasses_OnInvocationWithError_ShouldReturnCorrectDescriptions()
+    {
+        var assemblyScannerMock = new Mock<AssemblyScanner>(new OptionsAccessorFake());
+        assemblyScannerMock
+            .Setup(x => x.FetchSourceTypes())
+            .Throws<InvalidOperationException>();
+        
+        var repository = this.GetSubject(assemblyScannerMock);
+        var descriptions = repository.GetAllManualRegisteredClasses();
+
+        descriptions
+            .Should()
+            .HaveCount(0);
+    }
+    
+    [Fact]
+    public void GetAllManualRegisteredClasses_OnInvocationWithFilterExpression_ShouldReturnCorrectDescriptions()
+    {
+        var assemblyScannerMock = new Mock<AssemblyScanner>(new OptionsAccessorFake());
+        assemblyScannerMock
+            .Setup(x => x.FetchSourceTypes())
+            .Returns(new List<SourceAssemblyType>
+            {
+                new ()
+                {
+                    Type = typeof(SampleModelWithAttribute)
+                },
+                new ()
+                {
+                    Type = typeof(SampleModelWIthoutAttribute)
+                },
+                new ()
+                {
+                    Type = typeof(SampleClassWithAttribute)
+                }
+            });
+        
+        var repository = this.GetSubject(assemblyScannerMock);
+        var descriptions = repository.GetAllManualRegisteredClasses(x => x.Type.Name.Contains("Model"));
+
+        descriptions
+            .Should()
+            .HaveCount(1);
+
+        descriptions
+            .Select(x => x.Name)
+            .Should()
+            .BeEquivalentTo(nameof(SampleModelWithAttribute));
+    }
+    
+    [Fact]
+    public void GetAllRegisteredEnums_OnDefaultInvocation_ShouldReturnCorrectDescriptions()
+    {
+        var assemblyScannerMock = new Mock<AssemblyScanner>(new OptionsAccessorFake());
+        assemblyScannerMock
+            .Setup(x => x.FetchSourceTypes())
+            .Returns(new List<SourceAssemblyType>
+            {
+                new ()
+                {
+                    Type = typeof(DayOfWeek)
+                },
+                new ()
+                {
+                    Type = typeof(SampleClassWithAttribute)
+                }
+            });
+        
+        var repository = this.GetSubject(assemblyScannerMock);
+        var descriptions = repository.GetAllRegisteredEnums();
+
+        descriptions
+            .Should()
+            .HaveCount(1);
+
+        descriptions
+            .First()
+            .Name
+            .Should()
+            .Be(nameof(DayOfWeek));
+        
+        descriptions
+            .First()
+            .SourceType
+            .Should()
+            .Be(typeof(DayOfWeek));
+    }
+
+    [Fact]
+    public void GetAllRegisteredEnums_OnInvocationWithFilterExpression_ShouldReturnCorrectDescriptions()
+    {
+        var assemblyScannerMock = new Mock<AssemblyScanner>(new OptionsAccessorFake());
+        assemblyScannerMock
+            .Setup(x => x.FetchSourceTypes())
+            .Returns(new List<SourceAssemblyType>
+            {
+                new ()
+                {
+                    Type = typeof(DayOfWeek)
+                },
+                new ()
+                {
+                    Type = typeof(ParallelExecutionMode)
+                },
+                new ()
+                {
+                    Type = typeof(SampleClassWithAttribute)
+                }
+            });
+        
+        var repository = this.GetSubject(assemblyScannerMock);
+        var descriptions = repository.GetAllRegisteredEnums(x => x.Type.Name.Contains("Mode"));
+
+        descriptions
+            .Should()
+            .HaveCount(1);
+
+        descriptions
+            .First()
+            .Name
+            .Should()
+            .Be(nameof(ParallelExecutionMode));
+        
+        descriptions
+            .First()
+            .SourceType
+            .Should()
+            .Be(typeof(ParallelExecutionMode));
+    }
+
+    [Fact]
+    public void GetAllRegisteredEnums_OnInvocationWithError_ShouldReturnCorrectDescriptions()
+    {
+        var assemblyScannerMock = new Mock<AssemblyScanner>(new OptionsAccessorFake());
+        assemblyScannerMock
+            .Setup(x => x.FetchSourceTypes())
+            .Throws<InvalidOperationException>();
+        
+        var repository = this.GetSubject(assemblyScannerMock);
+        var descriptions = repository.GetAllRegisteredEnums();
+
+        descriptions
+            .Should()
+            .HaveCount(0);
+    }
+    
+    [Fact]
     public void GetAllControllerActionsClasses_OnDefaultInvocation_ShouldReturnProperClasses()
     {
         var repository = GetSubject();
@@ -135,11 +320,13 @@ public class SourceRepositoryTests
             });
     }
     
-    private ISourceRepository GetSubject()
+    private ISourceRepository GetSubject(Mock<AssemblyScanner> assemblyScannerMock = null)
     {
         var optionsAccessor = new OptionsAccessorFake();
+        var assemblyScanner = assemblyScannerMock?.Object ?? new AssemblyScanner(optionsAccessor);
+            
         return new SourceRepository(
-            new AssemblyScanner(optionsAccessor),
+            assemblyScanner,
             new DescriptionExtractor(optionsAccessor, Mock.Of<ILogger<DescriptionExtractor>>()),
             Mock.Of<ILogger<SourceRepository>>());
     }

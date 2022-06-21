@@ -29,9 +29,25 @@ public class TypeDescriptionTests
         };
 
         var clientType = description.GetClientType(TypeMappers.JavaScriptMapper);
-        clientType.Should().Be(expectedClientType);
+        clientType
+            .Should()
+            .Be(expectedClientType);
     }
 
+    [Fact]
+    public void ToString_OnNamedTypeDescription_ShouldReturnProperValue()
+    {
+        var description = new TypeDescription
+        {
+            Name = "SomeEntity",
+        };
+
+        description
+            .ToString()
+            .Should()
+            .Be("SomeEntity");
+    }
+    
     [Fact]
     public void GetClientArgumentNameListString_OnInvoke_ShouldReturnProperResult()
     {
@@ -88,5 +104,33 @@ public class TypeDescriptionTests
         
         var argumentNameListString = description.GetStronglyTypedClientArgumentListString("{1}: {0}", TypeMappers.JavaScriptMapper);
         argumentNameListString.Should().Be("id: string, age: number, active: boolean");
+    }
+    
+    [Fact]
+    public void GetStronglyTypedClientArgumentListString_OnInvokeWithNoProperties_ShouldReturnProperResult()
+    {
+        var description = new TypeDescription
+        {
+            Properties = new List<PropertyDescription>(),
+        };
+        
+        var argumentNameListString = description.GetStronglyTypedClientArgumentListString("{1}: {0}", TypeMappers.JavaScriptMapper);
+        argumentNameListString
+            .Should()
+            .Be(string.Empty);
+    }
+    
+    [Fact]
+    public void GetClientArgumentNameListString_OnInvokeWithNoProperties_ShouldReturnProperResult()
+    {
+        var description = new TypeDescription
+        {
+            Properties = new List<PropertyDescription>(),
+        };
+        
+        var argumentNameListString = description.GetClientArgumentNameListString();
+        argumentNameListString
+            .Should()
+            .Be(string.Empty);
     }
 }

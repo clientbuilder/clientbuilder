@@ -10,13 +10,6 @@ public class DevelopmentOnlyException : UnauthorizedAccessException
     /// <summary>
     /// Initializes a new instance of the <see cref="DevelopmentOnlyException"/> class.
     /// </summary>
-    public DevelopmentOnlyException()
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DevelopmentOnlyException"/> class.
-    /// </summary>
     /// <param name="message"></param>
     public DevelopmentOnlyException(string message)
         : base(message)

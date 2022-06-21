@@ -20,7 +20,7 @@ public class AssemblyScanner : IAssemblyScanner
     }
 
     /// <inheritdoc/>
-    public IEnumerable<SourceAssemblyType> FetchSourceTypes()
+    public virtual IEnumerable<SourceAssemblyType> FetchSourceTypes()
     {
         var assemblyTypes = new List<SourceAssemblyType>();
         var targetAssemblies = this.options.Assemblies;

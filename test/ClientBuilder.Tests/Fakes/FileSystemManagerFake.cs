@@ -1,11 +1,15 @@
 ﻿using System.Collections.Generic;
+using Castle.Core.Logging;
 using ClientBuilder.Core.Modules;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace ClientBuilder.Tests.Fakes;
 
 public class FileSystemManagerFake : FileSystemManager
 {
     public FileSystemManagerFake()
+        : base(Mock.Of<ILogger<FileSystemManager>>())
     {
         this.CreatedFiles = new Dictionary<string, string>();
         this.CreatedFolders = new List<string>();

@@ -7,6 +7,7 @@ using ClientBuilder.Options;
 using ClientBuilder.Tests.Fakes;
 using ClientBuilder.Tests.Samples;
 using FluentAssertions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -155,6 +156,194 @@ public class DescriptionExtractorTests
             .FullName
             .Should()
             .Be(type.FullName);
+    }
+
+    [Fact]
+    public void ExtractUniqueEnumsFromClasses_OnMixedInput_ShouldReturnCorrectDescriptions()
+    {
+        var descriptionExtractor = this.GetSubject();
+        var enumModelDescription = descriptionExtractor.ExtractTypeDescription(typeof(ModelWithEnum));
+        var inheritedEnumModel = descriptionExtractor.ExtractTypeDescription(typeof(ModelInheritByModelWithEnum));
+        var nonEnumModelDescription = descriptionExtractor.ExtractTypeDescription(typeof(SampleModelWIthoutAttribute));
+
+        var uniqueEnums = descriptionExtractor.ExtractUniqueEnumsFromClasses(new List<TypeDescription> { enumModelDescription, inheritedEnumModel, nonEnumModelDescription });
+        uniqueEnums
+            .Should()
+            .HaveCount(1);
+
+        uniqueEnums
+            .First()
+            .Name
+            .Should()
+            .Be("DayOfWeek");
+
+        uniqueEnums
+            .First()
+            .SourceType
+            .Should()
+            .Be(typeof(DayOfWeek));
+    }
+
+    [Fact]
+    public void ExtractTypeDescription_OnUsingModelWithEnum_ShouldAssignCorrectEnumsPropertiesToTheDescription()
+    {
+        var descriptionExtractor = this.GetSubject();
+        var modelDescription = descriptionExtractor.ExtractTypeDescription(typeof(ModelWithEnum));
+
+        modelDescription
+            .Properties
+            .First()
+            .Type
+            .EnumValues
+            .Should()
+            .BeEquivalentTo(new Dictionary<string, int>
+            {
+                {DayOfWeek.Sunday.ToString(), (int)DayOfWeek.Sunday},
+                {DayOfWeek.Monday.ToString(), (int)DayOfWeek.Monday},
+                {DayOfWeek.Tuesday.ToString(), (int)DayOfWeek.Tuesday},
+                {DayOfWeek.Wednesday.ToString(), (int)DayOfWeek.Wednesday},
+                {DayOfWeek.Thursday.ToString(), (int)DayOfWeek.Thursday},
+                {DayOfWeek.Friday.ToString(), (int)DayOfWeek.Friday},
+                {DayOfWeek.Saturday.ToString(), (int)DayOfWeek.Saturday},
+            });
+
+        modelDescription
+            .Properties
+            .First()
+            .Type
+            .EnumValueItems
+            .Should()
+            .BeEquivalentTo(new List<EnumValueItem>
+            {
+                new()
+                {
+                    Name = "Sunday",
+                    OriginalName = DayOfWeek.Sunday.ToString(),
+                    Key = "DAY_OF_WEEK_SUNDAY",
+                    Value = (int)DayOfWeek.Sunday
+                },
+                new()
+                {
+                    Name = "Monday",
+                    OriginalName = DayOfWeek.Monday.ToString(),
+                    Key = "DAY_OF_WEEK_MONDAY",
+                    Value = (int)DayOfWeek.Monday
+                },
+                new()
+                {
+                    Name = "Tuesday",
+                    OriginalName = DayOfWeek.Tuesday.ToString(),
+                    Key = "DAY_OF_WEEK_TUESDAY",
+                    Value = (int)DayOfWeek.Tuesday
+                },
+                new()
+                {
+                    Name = "Wednesday",
+                    OriginalName = DayOfWeek.Wednesday.ToString(),
+                    Key = "DAY_OF_WEEK_WEDNESDAY",
+                    Value = (int)DayOfWeek.Wednesday
+                },
+                new()
+                {
+                    Name = "Thursday",
+                    OriginalName = DayOfWeek.Thursday.ToString(),
+                    Key = "DAY_OF_WEEK_THURSDAY",
+                    Value = (int)DayOfWeek.Thursday
+                },
+                new()
+                {
+                    Name = "Friday",
+                    OriginalName = DayOfWeek.Friday.ToString(),
+                    Key = "DAY_OF_WEEK_FRIDAY",
+                    Value = (int)DayOfWeek.Friday
+                },
+                new()
+                {
+                    Name = "Saturday",
+                    OriginalName = DayOfWeek.Saturday.ToString(),
+                    Key = "DAY_OF_WEEK_SATURDAY",
+                    Value = (int)DayOfWeek.Saturday
+                },
+            });
+    }
+
+    [Fact]
+    public void ExtractTypeDescription_OnExtractingTypeOfEnumWithAttributes_ShouldReturnCorrectDescription()
+    {
+        var descriptionExtractor = this.GetSubject();
+        var modelDescription = descriptionExtractor.ExtractTypeDescription(typeof(ExampleEnum));
+
+        modelDescription
+            .EnumValues
+            .Should()
+            .BeEquivalentTo(new Dictionary<string, int>
+            {
+                {ExampleEnum.Example1.ToString(), (int)ExampleEnum.Example1},
+                {ExampleEnum.Example2.ToString(), (int)ExampleEnum.Example2},
+            });
+
+        modelDescription
+            .EnumValueItems
+            .Should()
+            .BeEquivalentTo(new List<EnumValueItem>
+            {
+                new()
+                {
+                    Name = "Example Enumeration 1",
+                    OriginalName = ExampleEnum.Example1.ToString(),
+                    Key = "EXAMPLE_ENUM_1",
+                    Value = (int)ExampleEnum.Example1
+                },
+                new()
+                {
+                    Name = "Example Enumeration 2",
+                    OriginalName = ExampleEnum.Example2.ToString(),
+                    Key = "EXAMPLE_ENUM_2",
+                    Value = (int)ExampleEnum.Example2
+                },
+            });
+    }
+    
+    [Fact]
+    public void ExtractArgumentDescription_OnHardcodeArgumentType_ShouldHardcodeAsComplexTheDescription()
+    {
+        var descriptionExtractor = this.GetSubject();
+        var argumentDescription = descriptionExtractor.ExtractArgumentDescription("body", typeof(object), true);
+
+        argumentDescription
+            .Name
+            .Should()
+            .Be("body");
+
+        argumentDescription
+            .Type
+            .Name
+            .Should()
+            .Be("object");
+
+        argumentDescription
+            .Type
+            .IsComplex
+            .Should()
+            .Be(true);
+
+        argumentDescription
+            .Type
+            .IsClass
+            .Should()
+            .Be(true);
+        
+        argumentDescription
+            .Type
+            .IsInterface
+            .Should()
+            .Be(false);
+        
+        argumentDescription
+            .Type
+            .Hardcoded
+            .Should()
+            .Be(true);
     }
     
     private IDescriptionExtractor GetSubject(IOptions<ClientBuilderOptions> optionsAccessor = null)

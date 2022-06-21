@@ -13,49 +13,33 @@ namespace ClientBuilder.Core.Modules;
 public class ScaffoldModuleFactory : IScaffoldModuleFactory
 {
     private readonly IWebHostEnvironment hostEnvironment;
-    private readonly IServiceProvider serviceProvider;
-    private readonly ClientBuilderOptions options;
+    private readonly IEnumerable<IScaffoldModule> scaffoldModules;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ScaffoldModuleFactory"/> class.
     /// </summary>
     /// <param name="hostEnvironment"></param>
-    /// <param name="optionsAccessor"></param>
-    /// <param name="serviceProvider"></param>
+    /// <param name="scaffoldModules"></param>
     public ScaffoldModuleFactory(
         IWebHostEnvironment hostEnvironment,
-        IOptions<ClientBuilderOptions> optionsAccessor,
-        IServiceProvider serviceProvider)
+        IEnumerable<IScaffoldModule> scaffoldModules)
     {
         this.hostEnvironment = hostEnvironment;
-        this.serviceProvider = serviceProvider;
-        this.options = optionsAccessor.Value;
+        this.scaffoldModules = scaffoldModules;
     }
 
     /// <inheritdoc/>
     public async Task<IEnumerable<ScaffoldModule>> BuildScaffoldModulesAsync()
     {
         var modules = new List<ScaffoldModule>();
-
-        string sourceDirectory = Path.GetFullPath(
-            Path.Combine(
-                this.hostEnvironment.ContentRootPath,
-                $@"..{Path.DirectorySeparatorChar}..{Path.DirectorySeparatorChar}"));
-
-        var scaffoldModulesTypes = this.options.ModulesTypes;
-
-        var scopedServiceProvider = this.serviceProvider.CreateScope().ServiceProvider;
-
-        foreach (var scaffoldModulesType in scaffoldModulesTypes)
+        foreach (var scaffoldModuleInstance in this.scaffoldModules)
         {
-            if (scopedServiceProvider.GetService(scaffoldModulesType) is ScaffoldModule moduleInstance)
-            {
-                moduleInstance.SetSourceDirectory(sourceDirectory);
-                await moduleInstance.SetupAsync();
-                moduleInstance.ValidateModule();
-                moduleInstance.Sync();
-                modules.Add(moduleInstance);
-            }
+            var scaffoldModule = (ScaffoldModule)scaffoldModuleInstance;
+            scaffoldModule.SetSourceDirectory(this.hostEnvironment.ContentRootPath);
+            await scaffoldModule.SetupAsync();
+            scaffoldModule.ValidateModule();
+            scaffoldModule.Sync();
+            modules.Add(scaffoldModule);
         }
 
         return modules;

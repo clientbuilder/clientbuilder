@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using ClientBuilder.Common;
 using ClientBuilder.Core.Modules;
@@ -59,10 +60,14 @@ public class ClientBuilderOptions
     /// Method that set the mobile application path into the options.
     /// </summary>
     /// <param name="clientIdentifier"></param>
+    /// <param name="amountDirectoriesBack"></param>
     /// <param name="paths">Paths are defined by the solution folder.</param>
-    public void SetClientApplicationPath(string clientIdentifier, params string[] paths)
+    public void SetClientApplicationPath(string clientIdentifier, ushort amountDirectoriesBack, params string[] paths)
     {
-        this.ClientApplicationsPaths[clientIdentifier] = Path.Combine(paths);
+        var pathSegments = new List<string>();
+        pathSegments.AddRange(Enumerable.Repeat("..", amountDirectoriesBack));
+        pathSegments.AddRange(paths);
+        this.ClientApplicationsPaths[clientIdentifier] = Path.Combine(pathSegments.ToArray());
     }
 
     /// <summary>

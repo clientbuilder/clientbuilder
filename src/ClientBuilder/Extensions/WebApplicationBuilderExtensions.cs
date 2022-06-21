@@ -43,7 +43,7 @@ public static class WebApplicationBuilderExtensions
 
         foreach (var modulesType in options.ModulesTypes)
         {
-            builder.Services.AddScoped(modulesType);
+            builder.Services.AddScoped(typeof(IScaffoldModule), modulesType);
         }
 
         builder.Services.AddCors(options =>
