@@ -20,4 +20,14 @@ public static class Constants
     /// Default Client Builder CORS policy name.
     /// </summary>
     public const string ClientBuilderCorsPolicy = "_CB_CorsPolicy";
+
+    /// <summary>
+    /// Default Client Builder client URLs.
+    /// </summary>
+    public static readonly string[] ClientBuilderClientUrls = new[]
+    {
+        "https://clientbuilder.dev",
+        "https://localhost:7069",
+        "http://localhost:5069",
+    };
 }

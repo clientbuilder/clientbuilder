@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using ClientBuilder.Core.Scanning;
 using ClientBuilder.Options;
+using ClientBuilder.TestAssembly.Models;
 using ClientBuilder.Tests.Fakes;
 using ClientBuilder.Tests.Samples;
 using FluentAssertions;
@@ -45,22 +46,66 @@ public class DescriptionExtractorTests
         modelDescription
             .Properties
             .Should()
-            .ContainSingle(x => x.Name == "Name" && x.Type.IsComplex == false && x.Type.Name == "string");
+            .ContainSingle(x => x.Name == "Name" && x.Type.IsComplex == false && x.Type.Name == "string" && !x.ReadOnly && x.DefaultValue == "null");
         
         modelDescription
             .Properties
             .Should()
-            .ContainSingle(x => x.Name == "Age" && x.Type.IsComplex == false && x.Type.Name == "int");
+            .ContainSingle(x => x.Name == "Age" && x.Type.IsComplex == false && x.Type.Name == "int" && !x.ReadOnly && x.DefaultValue == default(int).ToString());
         
         modelDescription
             .Properties
             .Should()
-            .ContainSingle(x => x.Name == "Active" && x.Type.IsComplex == false && x.Type.Name == "bool");
+            .ContainSingle(x => x.Name == "Active" && x.Type.IsComplex == false && x.Type.Name == "bool" && !x.ReadOnly && x.DefaultValue == default(bool).ToString());
         
         modelDescription
             .Properties
             .Should()
-            .ContainSingle(x => x.Name == "StartDate" && x.Type.IsComplex == false && x.Type.Name == "DateTime");
+            .ContainSingle(x => x.Name == "StartDate" && x.Type.IsComplex == false && x.Type.Name == "DateTime" && !x.ReadOnly && x.DefaultValue == default(DateTime).ToString());
+    }
+
+    [Fact]
+    public void ExtractTypeDescription_OnSelfContainedModel_ShouldUseTheParentDescriptionsProperly()
+    {
+        var descriptionExtractor = this.GetSubject();
+        var modelDescription = descriptionExtractor.ExtractTypeDescription(typeof(SelfContainedModel));
+
+        modelDescription
+            .Properties
+            .Should()
+            .HaveCount(2);
+
+        modelDescription
+            .IsCollection
+            .Should()
+            .Be(false);
+        
+        var childProperty = modelDescription.Properties.First(x => x.Name == "Child");
+        var childrenProperty = modelDescription.Properties.First(x => x.Name == "Children");
+
+        childProperty
+            .Type
+            .FullName
+            .Should()
+            .Be(modelDescription.FullName);
+        
+        childProperty
+            .Type
+            .IsCollection
+            .Should()
+            .Be(false);
+        
+        childrenProperty
+            .Type
+            .FullName
+            .Should()
+            .Be(modelDescription.FullName);
+        
+        childrenProperty
+            .Type
+            .IsCollection
+            .Should()
+            .Be(true);
     }
 
     [Fact]
@@ -128,6 +173,13 @@ public class DescriptionExtractorTests
             .Be(false);
     }
 
+    [Fact]
+    public void ExtractTypeDescription_OnNonProperInput_ShouldThrows()
+    {
+        var descriptionExtractor = this.GetSubject();
+        Assert.Throws<ArgumentException>(() => descriptionExtractor.ExtractTypeDescription(typeof(Dog), typeof(Dog), null));
+    }
+    
     [InlineData(typeof(Type))]
     [InlineData(typeof(Type[]))]
     [InlineData(typeof(IEnumerable<Type>))]
@@ -158,6 +210,30 @@ public class DescriptionExtractorTests
             .Be(type.FullName);
     }
 
+    [Fact]
+    public void ExtractInnerClassDescriptions_OnStandardInput_ShouldReturnsNoDescriptions()
+    {
+        var descriptionExtractor = this.GetSubject();
+        var modelDescription = descriptionExtractor.ExtractTypeDescription(typeof(SomeModel));
+        var innerClassDescriptions = descriptionExtractor.ExtractInnerClassDescriptions(modelDescription);
+
+        innerClassDescriptions
+            .Should()
+            .HaveCount(0);
+    }
+    
+    [Fact]
+    public void ExtractInnerClassDescriptions_OnComplexModel_ShouldExtractProperDescriptions()
+    {
+        var descriptionExtractor = this.GetSubject();
+        var modelDescription = descriptionExtractor.ExtractTypeDescription(typeof(MyDog));
+        var innerClassDescriptions = descriptionExtractor.ExtractInnerClassDescriptions(modelDescription);
+
+        innerClassDescriptions
+            .Should()
+            .HaveCount(4);
+    }
+    
     [Fact]
     public void ExtractUniqueEnumsFromClasses_OnMixedInput_ShouldReturnCorrectDescriptions()
     {

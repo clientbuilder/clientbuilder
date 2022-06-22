@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
-using System.Threading.Tasks;
+using ClientBuilder.Common;
 using ClientBuilder.Core.Scanning;
 using ClientBuilder.TestAssembly.Controllers;
 using ClientBuilder.Tests.Fakes;
@@ -21,7 +20,7 @@ public class SourceRepositoryTests
     public void GetAllControllerActions_OnDefaultInvocation_ShouldReturnProperActions()
     {
         var repository = GetSubject();
-        var actions = repository.GetAllControllerActions();
+        var actions = repository.GetAllControllerActions(new [] { "Main" });
         actions
             .Should()
             .HaveCount(4);
@@ -32,7 +31,12 @@ public class SourceRepositoryTests
                 x.ControllerName,
                 x.ActionName,
                 x.Route,
-                x.Method
+                x.Method,
+                x.MethodName,
+                x.Authorized,
+                x.ComplexArgument,
+                StronglyTypedClientArgumentListString = x.GetStronglyTypedClientArgumentListString("{1}: {0}", TypeMappers.JavaScriptMapper),
+                ClientArgumentNameListString = x.GetClientArgumentNameListString(),
             })
             .Should()
             .BeEquivalentTo(new List<object>
@@ -43,6 +47,11 @@ public class SourceRepositoryTests
                     ActionName = nameof(IncludedController.Data),
                     Route = "/api/main/data",
                     Method = HttpMethod.Get,
+                    MethodName = HttpMethod.Get.Method,
+                    Authorized = false,
+                    ComplexArgument = default(ArgumentDescription),
+                    StronglyTypedClientArgumentListString = string.Empty,
+                    ClientArgumentNameListString = string.Empty,
                 },
                 new
                 {
@@ -50,6 +59,18 @@ public class SourceRepositoryTests
                     ActionName = nameof(IncludedController.AddData),
                     Route = "/api/main/data",
                     Method = HttpMethod.Post,
+                    MethodName = HttpMethod.Post.Method,
+                    Authorized = true,
+                    ComplexArgument = new
+                    {
+                        Name = "model",
+                        Type = new
+                        {
+                            Name = "SomeModel"
+                        }
+                    },
+                    StronglyTypedClientArgumentListString = "model: SomeModel",
+                    ClientArgumentNameListString = "model",
                 },
                 new
                 {
@@ -57,6 +78,11 @@ public class SourceRepositoryTests
                     ActionName = nameof(IncludedController.Check),
                     Route = "/api/main/check",
                     Method = HttpMethod.Post,
+                    MethodName = HttpMethod.Post.Method,
+                    Authorized = true,
+                    ComplexArgument = default(ArgumentDescription),
+                    StronglyTypedClientArgumentListString = string.Empty,
+                    ClientArgumentNameListString = string.Empty,
                 },
                 new
                 {
@@ -64,6 +90,51 @@ public class SourceRepositoryTests
                     ActionName = nameof(SecondIncludedController.DataItem),
                     Route = "/api/secondary/data/{id}",
                     Method = HttpMethod.Get,
+                    MethodName = HttpMethod.Get.Method,
+                    Authorized = true,
+                    ComplexArgument = default(ArgumentDescription),
+                    StronglyTypedClientArgumentListString = "id: string",
+                    ClientArgumentNameListString = "id",
+                },
+            });
+    }
+    
+    [Fact]
+    public void GetAllControllerActions_OnInvocationAboutAGroup_ShouldReturnProperActions()
+    {
+        var repository = GetSubject();
+        var actions = repository.GetAllControllerActions(new [] { "Private" });
+        actions
+            .Should()
+            .HaveCount(1);
+
+        actions
+            .Select(x => new 
+            {
+                x.ControllerName,
+                x.ActionName,
+                x.Route,
+                x.Method,
+                x.MethodName,
+                x.Authorized,
+                x.ComplexArgument,
+                StronglyTypedClientArgumentListString = x.GetStronglyTypedClientArgumentListString("{1}: {0}", TypeMappers.JavaScriptMapper),
+                ClientArgumentNameListString = x.GetClientArgumentNameListString(),
+            })
+            .Should()
+            .BeEquivalentTo(new List<object>
+            {
+                new
+                {
+                    ControllerName = nameof(SecondIncludedController),
+                    ActionName = nameof(SecondIncludedController.DataItem),
+                    Route = "/api/secondary/data/{id}",
+                    Method = HttpMethod.Get,
+                    MethodName = HttpMethod.Get.Method,
+                    Authorized = true,
+                    ComplexArgument = default(ArgumentDescription),
+                    StronglyTypedClientArgumentListString = "id: string",
+                    ClientArgumentNameListString = "id",
                 },
             });
     }
@@ -73,7 +144,7 @@ public class SourceRepositoryTests
     {
         var repository = GetSubject();
         var actions = repository
-            .GetAllControllerActions(null, x => x.Type.Name != "IncludedController");
+            .GetAllControllerActions(null, x => x.Type.Name == "SecondIncludedController");
         actions
             .Should()
             .HaveCount(1);
@@ -100,9 +171,26 @@ public class SourceRepositoryTests
     }
 
     [Fact]
+    public void GetAllControllerActions_OnInvocationWithError_ShouldReturnProperActions()
+    {
+        var assemblyScannerMock = new Mock<IAssemblyScanner>();
+        assemblyScannerMock
+            .Setup(x => x.FetchSourceTypes())
+            .Throws<InvalidOperationException>();
+
+        var repository = GetSubject(assemblyScannerMock);
+
+        var actions = repository
+            .GetAllControllerActions();
+        actions
+            .Should()
+            .HaveCount(0);
+    }
+    
+    [Fact]
     public void GetAllManualRegisteredClasses_OnStandardInvocation_ShouldReturnCorrectDescriptions()
     {
-        var assemblyScannerMock = new Mock<AssemblyScanner>(new OptionsAccessorFake());
+        var assemblyScannerMock = new Mock<IAssemblyScanner>();
         assemblyScannerMock
             .Setup(x => x.FetchSourceTypes())
             .Returns(new List<SourceAssemblyType>
@@ -137,7 +225,7 @@ public class SourceRepositoryTests
     [Fact]
     public void GetAllManualRegisteredClasses_OnInvocationWithError_ShouldReturnCorrectDescriptions()
     {
-        var assemblyScannerMock = new Mock<AssemblyScanner>(new OptionsAccessorFake());
+        var assemblyScannerMock = new Mock<IAssemblyScanner>();
         assemblyScannerMock
             .Setup(x => x.FetchSourceTypes())
             .Throws<InvalidOperationException>();
@@ -153,7 +241,7 @@ public class SourceRepositoryTests
     [Fact]
     public void GetAllManualRegisteredClasses_OnInvocationWithFilterExpression_ShouldReturnCorrectDescriptions()
     {
-        var assemblyScannerMock = new Mock<AssemblyScanner>(new OptionsAccessorFake());
+        var assemblyScannerMock = new Mock<IAssemblyScanner>();
         assemblyScannerMock
             .Setup(x => x.FetchSourceTypes())
             .Returns(new List<SourceAssemblyType>
@@ -188,7 +276,7 @@ public class SourceRepositoryTests
     [Fact]
     public void GetAllRegisteredEnums_OnDefaultInvocation_ShouldReturnCorrectDescriptions()
     {
-        var assemblyScannerMock = new Mock<AssemblyScanner>(new OptionsAccessorFake());
+        var assemblyScannerMock = new Mock<IAssemblyScanner>();
         assemblyScannerMock
             .Setup(x => x.FetchSourceTypes())
             .Returns(new List<SourceAssemblyType>
@@ -226,7 +314,7 @@ public class SourceRepositoryTests
     [Fact]
     public void GetAllRegisteredEnums_OnInvocationWithFilterExpression_ShouldReturnCorrectDescriptions()
     {
-        var assemblyScannerMock = new Mock<AssemblyScanner>(new OptionsAccessorFake());
+        var assemblyScannerMock = new Mock<IAssemblyScanner>();
         assemblyScannerMock
             .Setup(x => x.FetchSourceTypes())
             .Returns(new List<SourceAssemblyType>
@@ -266,9 +354,33 @@ public class SourceRepositoryTests
     }
 
     [Fact]
+    public void GetAllControllerActions_OnSpecifiedController_ShouldConsumeAnyMethod()
+    {
+        var repository = this.GetSubject();
+        var actions = repository.GetAllControllerActions(new [] { "AllMethods" });
+
+        actions
+            .Select(x => x.Method)
+            .ToList()
+            .Should()
+            .BeEquivalentTo(
+                new List<HttpMethod>
+                {
+                    HttpMethod.Get,
+                    HttpMethod.Post,
+                    HttpMethod.Put,
+                    HttpMethod.Delete,
+                    HttpMethod.Patch,
+                    HttpMethod.Head,
+                    HttpMethod.Options,
+                }
+            );
+    }
+    
+    [Fact]
     public void GetAllRegisteredEnums_OnInvocationWithError_ShouldReturnCorrectDescriptions()
     {
-        var assemblyScannerMock = new Mock<AssemblyScanner>(new OptionsAccessorFake());
+        var assemblyScannerMock = new Mock<IAssemblyScanner>();
         assemblyScannerMock
             .Setup(x => x.FetchSourceTypes())
             .Throws<InvalidOperationException>();
@@ -320,7 +432,7 @@ public class SourceRepositoryTests
             });
     }
     
-    private ISourceRepository GetSubject(Mock<AssemblyScanner> assemblyScannerMock = null)
+    private ISourceRepository GetSubject(Mock<IAssemblyScanner> assemblyScannerMock = null)
     {
         var optionsAccessor = new OptionsAccessorFake();
         var assemblyScanner = assemblyScannerMock?.Object ?? new AssemblyScanner(optionsAccessor);

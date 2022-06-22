@@ -47,6 +47,30 @@ public class ScaffoldModuleFactoryTests
             .Name
             .Should()
             .Be(mainModule.Name);
+
+        modules
+            .First()
+            .Order
+            .Should()
+            .Be(mainModule.Order);
+        
+        modules
+            .First()
+            .IconUrl
+            .Should()
+            .Be(mainModule.IconUrl);
+        
+        modules
+            .First()
+            .Type
+            .Should()
+            .Be(mainModule.Type);
+        
+        modules
+            .First()
+            .ScaffoldTypeName
+            .Should()
+            .Be(mainModule.ScaffoldTypeName);
         
         modules
             .First()

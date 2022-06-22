@@ -33,9 +33,9 @@ public static class WebApplicationBuilderExtensions
         builder.Services.AddOptions<ClientBuilderOptions>();
         builder.Services.PostConfigure(optionsAction);
 
-        builder.Services.AddSingleton<IScaffoldModuleFactory, ScaffoldModuleFactory>();
         builder.Services.AddSingleton<IFileSystemManager, FileSystemManager>();
-        builder.Services.AddSingleton<IScaffoldModuleRepository, ScaffoldModuleRepository>();
+        builder.Services.AddScoped<IScaffoldModuleFactory, ScaffoldModuleFactory>();
+        builder.Services.AddScoped<IScaffoldModuleRepository, ScaffoldModuleRepository>();
         builder.Services.AddScoped<IScaffoldModuleGenerator, ScaffoldModuleGenerator>();
         builder.Services.AddScoped<IAssemblyScanner, AssemblyScanner>();
         builder.Services.AddScoped<IDescriptionExtractor, DescriptionExtractor>();
@@ -46,15 +46,12 @@ public static class WebApplicationBuilderExtensions
             builder.Services.AddScoped(typeof(IScaffoldModule), modulesType);
         }
 
-        builder.Services.AddCors(options =>
+        builder.Services.AddCors(corsOptions =>
         {
-            options.AddPolicy(Constants.ClientBuilderCorsPolicy, builder =>
+            corsOptions.AddPolicy(Constants.ClientBuilderCorsPolicy, corsBuilder =>
             {
-                builder
-                    .WithOrigins(
-                        "https://clientbuilder.dev",
-                        "https://localhost:7069",
-                        "http://localhost:5069")
+                corsBuilder
+                    .WithOrigins(Constants.ClientBuilderClientUrls)
                     .AllowAnyHeader()
                     .AllowAnyMethod();
             });

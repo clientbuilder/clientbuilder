@@ -95,13 +95,17 @@ public class ScaffoldModuleGenerator : IScaffoldModuleGenerator
         var errorMessagesList = new List<string>();
         try
         {
+            var generatedFoldersCount = 0;
             var folders = module.GetFolders();
             foreach (var folder in folders)
             {
                 try
                 {
                     var folderPath = Path.Combine(module.SourceDirectory, folder.RelativePath, folder.Name);
-                    this.fileSystemManager.CreateFolder(folderPath);
+                    if (this.fileSystemManager.CreateFolder(folderPath))
+                    {
+                        generatedFoldersCount++;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -109,6 +113,7 @@ public class ScaffoldModuleGenerator : IScaffoldModuleGenerator
                 }
             }
 
+            var generatedFilesCount = 0;
             var files = module.GetFiles();
             foreach (var file in files)
             {
@@ -119,7 +124,10 @@ public class ScaffoldModuleGenerator : IScaffoldModuleGenerator
                     bool isFileExists = this.fileSystemManager.IsFileExists(filePath);
                     if (!isFileExists || file.Locked)
                     {
-                        this.fileSystemManager.CreateFile(filePath, fileContent);
+                        if (this.fileSystemManager.CreateFile(filePath, fileContent))
+                        {
+                            generatedFilesCount++;
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -128,14 +136,12 @@ public class ScaffoldModuleGenerator : IScaffoldModuleGenerator
                 }
             }
 
-            var expectedGeneratedItemsCount = folders.Count + files.Count;
-
             var generationResult = ScaffoldModuleGenerationStatusType.Unsuccessful;
             if (!errorMessagesList.Any())
             {
                 generationResult = ScaffoldModuleGenerationStatusType.Successful;
             }
-            else if (errorMessagesList.Count < expectedGeneratedItemsCount)
+            else if (errorMessagesList.Any() && (generatedFilesCount + generatedFoldersCount) > 0)
             {
                 generationResult = ScaffoldModuleGenerationStatusType.SuccessfulWithErrors;
             }

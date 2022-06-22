@@ -19,7 +19,7 @@ public class FileSystemManager : IFileSystemManager
     }
 
     /// <inheritdoc/>
-    public virtual void CreateFolder(string folderPath)
+    public virtual bool CreateFolder(string folderPath)
     {
         if (string.IsNullOrWhiteSpace(folderPath))
         {
@@ -30,11 +30,14 @@ public class FileSystemManager : IFileSystemManager
         {
             Directory.CreateDirectory(folderPath);
             this.logger.LogDebug("Client Builder has created a folder ({FolderPath})", folderPath);
+            return true;
         }
+
+        return false;
     }
 
     /// <inheritdoc/>
-    public virtual void CreateFile(string filePath, string fileContent)
+    public virtual bool CreateFile(string filePath, string fileContent)
     {
         if (string.IsNullOrWhiteSpace(filePath))
         {
@@ -43,6 +46,7 @@ public class FileSystemManager : IFileSystemManager
 
         File.WriteAllText(filePath, fileContent);
         this.logger.LogDebug("Client Builder has created a file ({FilePath})", filePath);
+        return true;
     }
 
     /// <inheritdoc/>

@@ -1,12 +1,15 @@
 ﻿using System.Linq;
 using System.Reflection;
+using ClientBuilder.Common;
 using ClientBuilder.Core.Modules;
 using ClientBuilder.Extensions;
 using ClientBuilder.TestAssembly.Modules.SimpleTest;
 using FluentAssertions;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace ClientBuilder.Tests.Extensions;
@@ -62,5 +65,42 @@ public class WebApplicationBuilderExtensionsTests
             .Lifetime
             .Should()
             .Be(ServiceLifetime.Scoped);
+
+        var app = builder.Build();
+
+        using var scope = app.Services.CreateScope();
+        var options = scope.ServiceProvider.GetService<IOptions<CorsOptions>>();
+            
+        Assert.NotNull(options);
+        Assert.NotNull(options.Value);
+            
+        var expectedPolicy = options.Value.GetPolicy(Constants.ClientBuilderCorsPolicy);
+            
+        Assert.NotNull(expectedPolicy);
+            
+        expectedPolicy
+            .AllowAnyMethod
+            .Should()
+            .Be(true);
+            
+        expectedPolicy
+            .AllowAnyHeader
+            .Should()
+            .Be(true);
+            
+        expectedPolicy
+            .AllowAnyOrigin
+            .Should()
+            .Be(false);
+            
+        expectedPolicy
+            .SupportsCredentials
+            .Should()
+            .Be(false);
+            
+        expectedPolicy
+            .Origins
+            .Should()
+            .BeEquivalentTo(Constants.ClientBuilderClientUrls);
     }
 }

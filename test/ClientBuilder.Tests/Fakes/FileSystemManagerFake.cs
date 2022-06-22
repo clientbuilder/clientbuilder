@@ -19,20 +19,26 @@ public class FileSystemManagerFake : FileSystemManager
     
     public IList<string> CreatedFolders { get; }
 
-    public override void CreateFile(string filePath, string fileContent)
+    public override bool CreateFile(string filePath, string fileContent)
     {
         if (!this.IsFileExists(filePath))
         {
             this.CreatedFiles[filePath] = fileContent;
+            return true;
         }
+
+        return false;
     }
 
-    public override void CreateFolder(string folderPath)
+    public override bool CreateFolder(string folderPath)
     {
         if (!this.IsFolderExists(folderPath))
         {
             this.CreatedFolders.Add(folderPath);
+            return true;
         }
+
+        return false;
     }
 
     public override bool IsFileExists(string filePath) =>

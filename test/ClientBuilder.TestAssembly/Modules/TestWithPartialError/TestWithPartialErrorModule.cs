@@ -3,19 +3,19 @@ using System.Threading.Tasks;
 using ClientBuilder.Common;
 using ClientBuilder.Core.Modules;
 
-namespace ClientBuilder.TestAssembly.Modules.SimpleTest;
+namespace ClientBuilder.TestAssembly.Modules.TestWithPartialError;
 
-public class SimpleTestModule : ScaffoldModule
+public class TestWithPartialErrorModule : ScaffoldModule
 {
-    public SimpleTestModule(IFileSystemManager fileSystemManager)
+    public TestWithPartialErrorModule(IFileSystemManager fileSystemManager)
         : base(fileSystemManager)
     {
-        this.Name = "Simple Test Module";
-        this.ClientId = "test.client";
+        this.Name = "Test With Partial Error Module";
+        this.ClientId = "test.error.partial";
         this.Order = 1;
         this.IconUrl = "test.png";
         this.ScaffoldTypeName = "Test";
-        this.Type = InstanceType.Web;
+        this.Type = InstanceType.Undefined;
     }
 
     public override async Task SetupAsync()
@@ -30,7 +30,7 @@ public class SimpleTestModule : ScaffoldModule
         {
             Name = "file1.json",
             RelativePath = Directory.GetCurrentDirectory(),
-            Template = new JsonFileTemplate(),
+            Template = new T4FileTemplate(null),
             ContextData = new { Data = "SimpleData" },
             ReferenceId = "file1"
         });

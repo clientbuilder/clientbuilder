@@ -45,7 +45,13 @@ public class SourceRepository : ISourceRepository
                 groupsFilter = x =>
                 {
                     var attribute = x.Type.GetCustomAttribute<IncludeControllerAttribute>();
-                    return groups.Intersect(attribute.Groups).Any();
+                    var attributeGroups = new List<string>();
+                    if (attribute?.Groups != null && attribute.Groups.Any())
+                    {
+                        attributeGroups.AddRange(attribute.Groups);
+                    }
+
+                    return groups.Intersect(attributeGroups).Any();
                 };
             }
 

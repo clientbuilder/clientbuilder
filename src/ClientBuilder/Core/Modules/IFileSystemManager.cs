@@ -9,14 +9,16 @@ public interface IFileSystemManager
     /// Creates a folder by specified path. If folder exists no folder will be created.
     /// </summary>
     /// <param name="folderPath"></param>
-    void CreateFolder(string folderPath);
+    /// <returns></returns>
+    bool CreateFolder(string folderPath);
 
     /// <summary>
     /// Creates a file by specified path and content. If file exists no file will be created.
     /// </summary>
     /// <param name="filePath"></param>
     /// <param name="fileContent"></param>
-    void CreateFile(string filePath, string fileContent);
+    /// <returns></returns>
+    bool CreateFile(string filePath, string fileContent);
 
     /// <summary>
     /// Checks whether a folder exists.

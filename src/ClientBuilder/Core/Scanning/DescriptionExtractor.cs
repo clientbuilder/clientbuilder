@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using ClientBuilder.DataAnnotations;
@@ -40,6 +41,7 @@ public class DescriptionExtractor : IDescriptionExtractor
         Type parentType = null,
         TypeDescription parentDescription = null)
     {
+        this.logger.LogInformation("Extracting type: '{Type}'", type);
         if (type == null)
         {
             return new TypeDescription
@@ -58,8 +60,6 @@ public class DescriptionExtractor : IDescriptionExtractor
                 IsValid = false,
             };
         }
-
-        this.logger.LogInformation("Extracting type: '{Type}'", type);
 
         try
         {
