@@ -22,7 +22,6 @@ public static class ResponseMapper
             Id = module.Id,
             Name = module.Name,
             Order = module.Order,
-            IconUrl = module.IconUrl,
             ScaffoldTypeName = module.ScaffoldTypeName,
             SourceDirectory = module.SourceDirectory,
             Type = module.Type,

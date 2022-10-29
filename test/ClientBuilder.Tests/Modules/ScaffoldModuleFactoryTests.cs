@@ -53,13 +53,7 @@ public class ScaffoldModuleFactoryTests
             .Order
             .Should()
             .Be(mainModule.Order);
-        
-        modules
-            .First()
-            .IconUrl
-            .Should()
-            .Be(mainModule.IconUrl);
-        
+
         modules
             .First()
             .Type

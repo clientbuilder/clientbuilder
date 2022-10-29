@@ -13,7 +13,6 @@ public class TestWithErrorModule : ScaffoldModule
         this.Name = "Test With Error Module";
         this.ClientId = "test.error";
         this.Order = 1;
-        this.IconUrl = "test.png";
         this.ScaffoldTypeName = "Test";
         this.Type = InstanceType.Undefined;
     }

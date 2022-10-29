@@ -29,7 +29,6 @@ public class ResponseMapperTests
                 module.Id,
                 module.Name,
                 module.Order,
-                module.IconUrl,
                 module.ScaffoldTypeName,
                 module.SourceDirectory,
                 module.Type,

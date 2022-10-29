@@ -13,7 +13,6 @@ public class SimpleTestModule : ScaffoldModule
         this.Name = "Simple Test Module";
         this.ClientId = "test.client";
         this.Order = 1;
-        this.IconUrl = "test.png";
         this.ScaffoldTypeName = "Test";
         this.Type = InstanceType.Web;
     }

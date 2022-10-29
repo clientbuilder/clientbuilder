@@ -13,7 +13,6 @@ public class TestWithPartialErrorModule : ScaffoldModule
         this.Name = "Test With Partial Error Module";
         this.ClientId = "test.error.partial";
         this.Order = 1;
-        this.IconUrl = "test.png";
         this.ScaffoldTypeName = "Test";
         this.Type = InstanceType.Undefined;
     }
