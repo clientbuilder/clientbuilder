@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ClientBuilder.Core.Modules;
+using ClientBuilder.Options;
 using ClientBuilder.TestAssembly.Modules.SimpleTest;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
@@ -16,11 +17,6 @@ public class ScaffoldModuleFactoryTests
     [Fact]
     public async Task BuildScaffoldModulesAsync_OnProperSetup_ShouldReturnCorrectModules()
     {
-        var webHostEnvironmentMock = new Mock<IWebHostEnvironment>();
-        webHostEnvironmentMock
-            .Setup(x => x.ContentRootPath)
-            .Returns(Directory.GetCurrentDirectory);
-
         var mainModule = new SimpleTestModule(Mock.Of<IFileSystemManager>());
         
         var factory = this.GetSubject(
@@ -28,7 +24,10 @@ public class ScaffoldModuleFactoryTests
             {
                 mainModule,
             },
-            webHostEnvironmentMock);
+            new ClientBuilderOptions
+            {
+                ContentRootPath = Directory.GetCurrentDirectory(),
+            });
 
         var modules = await factory.BuildScaffoldModulesAsync();
 
@@ -73,8 +72,8 @@ public class ScaffoldModuleFactoryTests
             .Be(Directory.GetCurrentDirectory());
     }
     
-    private IScaffoldModuleFactory GetSubject(IEnumerable<ScaffoldModule> modules, Mock<IWebHostEnvironment> webHostEnvironmentMock = null)
+    private IScaffoldModuleFactory GetSubject(IEnumerable<ScaffoldModule> modules, ClientBuilderOptions options = null)
     {
-        return new ScaffoldModuleFactory(webHostEnvironmentMock?.Object ?? Mock.Of<IWebHostEnvironment>(), modules);
+        return new ScaffoldModuleFactory(Microsoft.Extensions.Options.Options.Create<ClientBuilderOptions>(options ?? new ClientBuilderOptions()), modules);
     }
 }

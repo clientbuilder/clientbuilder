@@ -14,15 +14,14 @@ using Xunit;
 
 namespace ClientBuilder.Tests.Extensions;
 
-public class WebApplicationBuilderExtensionsTests
+public class ServiceCollectionExtensionsTests
 {
     [Fact]
     public void AddClientBuilder_OnInvocationInDevelopment_ShouldDoTheRegistration()
     {
         var builder = WebApplication.CreateBuilder();
-        builder.Environment.EnvironmentName = Environments.Development;
 
-        builder.AddClientBuilder(_ => { });
+        builder.Services.AddClientBuilder(_ => { });
         builder
             .Services
             .Select(x => x.ServiceType?.Assembly)
@@ -34,9 +33,12 @@ public class WebApplicationBuilderExtensionsTests
     public void AddClientBuilder_OnInvocationInProduction_ShouldIgnoreTheRegistration()
     {
         var builder = WebApplication.CreateBuilder();
-        builder.Environment.EnvironmentName = Environments.Production;
 
-        builder.AddClientBuilder(_ => { });
+        builder.Services.AddClientBuilder(opt =>
+        {
+            opt.IsDevelopment = false;
+        });
+
         builder
             .Services
             .Select(x => x.ServiceType?.Assembly)
@@ -48,9 +50,8 @@ public class WebApplicationBuilderExtensionsTests
     public void AddClientBuilder_OnModuleRegistration_ShouldRegistersTheModule()
     {
         var builder = WebApplication.CreateBuilder();
-        builder.Environment.EnvironmentName = Environments.Development;
 
-        builder.AddClientBuilder(options =>
+        builder.Services.AddClientBuilder(options =>
         {
             options.AddModule<SimpleTestModule>();
         });

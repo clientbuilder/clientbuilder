@@ -57,6 +57,17 @@ public class ClientBuilderOptions
     public Dictionary<string, string> ClientApplicationsPaths { get; private set; }
 
     /// <summary>
+    /// Indicates whether the application environment is development. Default is true.
+    /// Please consider that if the flag is set to false Client Builder is going to be disabled.
+    /// </summary>
+    public bool IsDevelopment { get; set; } = true;
+
+    /// <summary>
+    /// The content root path of the main application used for assembly scanning (ASP.NET app).
+    /// </summary>
+    public string ContentRootPath { get; set; }
+
+    /// <summary>
     /// Method that set the mobile application path into the options.
     /// </summary>
     /// <param name="clientIdentifier"></param>
