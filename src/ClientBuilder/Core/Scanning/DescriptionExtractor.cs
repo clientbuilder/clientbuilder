@@ -138,8 +138,8 @@ public class DescriptionExtractor : IDescriptionExtractor
                     targetEnumType = underlyingType;
                 }
 
-                description.Name = type.Name;
-                description.FullName = type.FullName;
+                description.Name = targetEnumType.Name;
+                description.FullName = targetEnumType.FullName;
                 description.EnumValueItems = GetEnumValueItems(targetEnumType);
                 description.EnumValues = new Dictionary<string, int>();
                 foreach (var valueItem in description.EnumValueItems)

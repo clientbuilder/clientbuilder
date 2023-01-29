@@ -403,7 +403,17 @@ public class DescriptionExtractorTests
                 {ExampleEnum.Example1.ToString(), (int)ExampleEnum.Example1},
                 {ExampleEnum.Example2.ToString(), (int)ExampleEnum.Example2},
             });
-
+        
+        modelDescription
+            .IsNullable
+            .Should()
+            .Be(false);
+        
+        modelDescription
+            .Name
+            .Should()
+            .Be(nameof(ExampleEnum));
+        
         modelDescription
             .EnumValueItems
             .Should()
@@ -441,6 +451,11 @@ public class DescriptionExtractorTests
                 {ExampleEnum.Example2.ToString(), (int)ExampleEnum.Example2},
             });
 
+        modelDescription
+            .Name
+            .Should()
+            .Be(nameof(ExampleEnum));
+        
         modelDescription
             .IsNullable
             .Should()
