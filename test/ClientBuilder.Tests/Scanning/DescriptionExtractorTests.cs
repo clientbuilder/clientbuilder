@@ -344,6 +344,52 @@ public class DescriptionExtractorTests
     }
 
     [Fact]
+    public void ExtractTypeDescription_OnExtractingTypeOfEnumWithNegativeValues_ShouldReturnCorrectDescription()
+    {
+        var descriptionExtractor = this.GetSubject();
+        var modelDescription = descriptionExtractor.ExtractTypeDescription(typeof(NegativeEnum));
+
+        modelDescription
+            .EnumValues
+            .Should()
+            .BeEquivalentTo(new Dictionary<string, int>
+            {
+                {NegativeEnum.ExampleNegative100.ToString(), (int)NegativeEnum.ExampleNegative100},
+                {NegativeEnum.ExampleZero.ToString(), (int)NegativeEnum.ExampleZero},
+                {NegativeEnum.ExamplePositive100.ToString(), (int)NegativeEnum.ExamplePositive100},
+            });
+
+        modelDescription
+            .EnumValueItems
+            .OrderBy(x => x.Value)
+            .Should()
+            .BeEquivalentTo(new List<EnumValueItem>
+            {
+                new()
+                {
+                    Name = "Example Negative100",
+                    OriginalName = NegativeEnum.ExampleNegative100.ToString(),
+                    Key = "NEGATIVE_ENUM_EXAMPLE_NEGATIVE100",
+                    Value = (int)NegativeEnum.ExampleNegative100
+                },
+                new()
+                {
+                    Name = "Example Zero",
+                    OriginalName = NegativeEnum.ExampleZero.ToString(),
+                    Key = "NEGATIVE_ENUM_EXAMPLE_ZERO",
+                    Value = (int)NegativeEnum.ExampleZero
+                },
+                new()
+                {
+                    Name = "Example Positive100",
+                    OriginalName = NegativeEnum.ExamplePositive100.ToString(),
+                    Key = "NEGATIVE_ENUM_EXAMPLE_POSITIVE100",
+                    Value = (int)NegativeEnum.ExamplePositive100
+                },
+            });
+    }
+    
+    [Fact]
     public void ExtractTypeDescription_OnExtractingTypeOfEnumWithAttributes_ShouldReturnCorrectDescription()
     {
         var descriptionExtractor = this.GetSubject();
@@ -358,6 +404,48 @@ public class DescriptionExtractorTests
                 {ExampleEnum.Example2.ToString(), (int)ExampleEnum.Example2},
             });
 
+        modelDescription
+            .EnumValueItems
+            .Should()
+            .BeEquivalentTo(new List<EnumValueItem>
+            {
+                new()
+                {
+                    Name = "Example Enumeration 1",
+                    OriginalName = ExampleEnum.Example1.ToString(),
+                    Key = "EXAMPLE_ENUM_1",
+                    Value = (int)ExampleEnum.Example1
+                },
+                new()
+                {
+                    Name = "Example Enumeration 2",
+                    OriginalName = ExampleEnum.Example2.ToString(),
+                    Key = "EXAMPLE_ENUM_2",
+                    Value = (int)ExampleEnum.Example2
+                },
+            });
+    }
+    
+    [Fact]
+    public void ExtractTypeDescription_OnExtractingTypeOfNullableEnumWithAttributes_ShouldReturnCorrectDescription()
+    {
+        var descriptionExtractor = this.GetSubject();
+        var modelDescription = descriptionExtractor.ExtractTypeDescription(typeof(ExampleEnum?));
+
+        modelDescription
+            .EnumValues
+            .Should()
+            .BeEquivalentTo(new Dictionary<string, int>
+            {
+                {ExampleEnum.Example1.ToString(), (int)ExampleEnum.Example1},
+                {ExampleEnum.Example2.ToString(), (int)ExampleEnum.Example2},
+            });
+
+        modelDescription
+            .IsNullable
+            .Should()
+            .Be(true);
+        
         modelDescription
             .EnumValueItems
             .Should()

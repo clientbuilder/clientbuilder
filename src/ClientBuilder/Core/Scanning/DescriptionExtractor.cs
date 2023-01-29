@@ -79,8 +79,9 @@ public class DescriptionExtractor : IDescriptionExtractor
                 type = type.GetElementType();
             }
 
-            description.IsNullable = Nullable.GetUnderlyingType(type) != null;
-            description.IsEnum = type.IsEnum;
+            var underlyingType = Nullable.GetUnderlyingType(type);
+            description.IsNullable = underlyingType != null;
+            description.IsEnum = type.IsEnum || (underlyingType?.IsEnum ?? false);
             bool isPrimitiveType = false;
 
             if (type == parentType)
@@ -116,7 +117,7 @@ public class DescriptionExtractor : IDescriptionExtractor
                 description.FullName = type.FullName;
             }
 
-            if (!isPrimitiveType && type.IsGenericType && !description.IsCollection)
+            if (!isPrimitiveType && type.IsGenericType && !description.IsCollection && (description.IsNullable && !description.IsEnum))
             {
                 description.Name = GetGenericTypeClearName(type.Name);
                 description.FullName = GetGenericTypeClearName(type.FullName);
@@ -131,14 +132,19 @@ public class DescriptionExtractor : IDescriptionExtractor
 
             if (description.IsEnum)
             {
+                var targetEnumType = type;
+                if (description.IsNullable)
+                {
+                    targetEnumType = underlyingType;
+                }
+
                 description.Name = type.Name;
                 description.FullName = type.FullName;
-                description.EnumValueItems = GetEnumValueItems(type);
+                description.EnumValueItems = GetEnumValueItems(targetEnumType);
                 description.EnumValues = new Dictionary<string, int>();
-                var enumValues = Enum.GetValues(type);
-                foreach (var value in enumValues)
+                foreach (var valueItem in description.EnumValueItems)
                 {
-                    description.EnumValues[value.ToString()] = (int)Enum.Parse(type, value.ToString());
+                    description.EnumValues[valueItem.OriginalName] = valueItem.Value;
                 }
             }
 

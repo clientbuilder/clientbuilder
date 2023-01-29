@@ -12,3 +12,10 @@ public enum ExampleEnum
     [EnumKey("EXAMPLE_ENUM_2")]
     Example2 = 2,
 }
+
+public enum NegativeEnum
+{
+    ExampleNegative100 = -100,
+    ExampleZero = 0,
+    ExamplePositive100 = 100,
+}
