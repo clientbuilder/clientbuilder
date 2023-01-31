@@ -1,0 +1,35 @@
+﻿html, body {
+  font-family: $font-family-main;
+  * {
+    font-family: $font-family-main;
+  }
+  
+  color: $text-color;
+}
+
+::selection {
+  background: $main-color;
+  color: $second-color;
+}
+
+::-moz-selection {
+  background: $main-color;
+  color: $second-color;
+}
+
+*:-moz-full-screen,
+*:-webkit-full-screen,
+*:fullscreen *:-ms-fullscreen {
+  overflow: auto !important;
+}
+
+*:focus-visible {
+  outline: none !important;
+}
+
+.no-transition {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}

@@ -32,6 +32,11 @@ public enum InstanceType
 public enum ScaffoldModuleGenerationStatusType
 {
     /// <summary>
+    /// Unsuccessful.
+    /// </summary>
+    Unsuccessful = 0,
+
+    /// <summary>
     /// Successful.
     /// </summary>
     Successful = 1,
@@ -40,9 +45,4 @@ public enum ScaffoldModuleGenerationStatusType
     /// Success with errors.
     /// </summary>
     SuccessfulWithErrors = 2,
-
-    /// <summary>
-    /// Unsuccessful.
-    /// </summary>
-    Unsuccessful = 3,
 }

@@ -1,0 +1,77 @@
+﻿#navbar {
+  .navbar-toggler {
+    background: $primary !important;
+    padding: 0.25rem;
+  }
+  
+  .navbar-brand {
+    display: flex;
+    
+    img, svg {
+      height: 48px;
+      margin-right: 8px;
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+    
+    .text {
+      font-weight: bolder;
+      margin-top: auto;
+      margin-bottom: auto;
+      font-size: 1.2rem;
+      color: $text-color;
+    }
+  }
+  
+  .nav-item {
+    .nav-link {
+      font-weight: 500;
+      font-size: 0.88rem;
+      color: lighten($primary, 20%);
+      
+      &.active {
+        color: $primary;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+#quick-generation {
+  .dropdown-menu {
+    padding: 14px 16px;
+    margin-top: 10px;
+    
+    .menu-text {
+      font-size: 0.8rem;
+      border-bottom: 1px solid $secondary;
+      padding-bottom: 6px;
+      margin-bottom: 6px;
+      font-weight: 500;
+      font-style: italic;
+    }
+    
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 0;
+
+      .menu-li {
+        width: 100%;
+        
+        .dropdown-item {
+          cursor: pointer;
+          font-weight: 700;
+          font-size: .86rem;
+          padding-left: .3rem;
+          padding-right: .3rem;
+          background: none !important;
+          
+          &.active {
+            color: $primary;
+          }
+        }
+      }
+    }
+  }
+}

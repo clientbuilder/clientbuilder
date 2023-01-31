@@ -6,7 +6,7 @@ namespace ClientBuilder.Common;
 /// <summary>
 /// Defaults used by the Client Builder.
 /// </summary>
-public static class Defaults
+public static class ClientBuilderDefaults
 {
     /// <summary>
     /// Primitive types and their name that defines the default definition of Client Builder for

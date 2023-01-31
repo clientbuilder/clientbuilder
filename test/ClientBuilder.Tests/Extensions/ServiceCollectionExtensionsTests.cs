@@ -17,36 +17,6 @@ namespace ClientBuilder.Tests.Extensions;
 public class ServiceCollectionExtensionsTests
 {
     [Fact]
-    public void AddClientBuilder_OnInvocationInDevelopment_ShouldDoTheRegistration()
-    {
-        var builder = WebApplication.CreateBuilder();
-
-        builder.Services.AddClientBuilder(_ => { });
-        builder
-            .Services
-            .Select(x => x.ServiceType?.Assembly)
-            .Should()
-            .Contain(typeof(ScaffoldModule).Assembly);
-    }
-    
-    [Fact]
-    public void AddClientBuilder_OnInvocationInProduction_ShouldIgnoreTheRegistration()
-    {
-        var builder = WebApplication.CreateBuilder();
-
-        builder.Services.AddClientBuilder(opt =>
-        {
-            opt.IsDevelopment = false;
-        });
-
-        builder
-            .Services
-            .Select(x => x.ServiceType?.Assembly)
-            .Should()
-            .NotContain(typeof(ScaffoldModule).Assembly);
-    }
-    
-    [Fact]
     public void AddClientBuilder_OnModuleRegistration_ShouldRegistersTheModule()
     {
         var builder = WebApplication.CreateBuilder();
@@ -66,42 +36,5 @@ public class ServiceCollectionExtensionsTests
             .Lifetime
             .Should()
             .Be(ServiceLifetime.Scoped);
-
-        var app = builder.Build();
-
-        using var scope = app.Services.CreateScope();
-        var options = scope.ServiceProvider.GetService<IOptions<CorsOptions>>();
-            
-        Assert.NotNull(options);
-        Assert.NotNull(options.Value);
-            
-        var expectedPolicy = options.Value.GetPolicy(Constants.ClientBuilderCorsPolicy);
-            
-        Assert.NotNull(expectedPolicy);
-            
-        expectedPolicy
-            .AllowAnyMethod
-            .Should()
-            .Be(true);
-            
-        expectedPolicy
-            .AllowAnyHeader
-            .Should()
-            .Be(true);
-            
-        expectedPolicy
-            .AllowAnyOrigin
-            .Should()
-            .Be(false);
-            
-        expectedPolicy
-            .SupportsCredentials
-            .Should()
-            .Be(false);
-            
-        expectedPolicy
-            .Origins
-            .Should()
-            .BeEquivalentTo(Constants.ClientBuilderClientUrls);
     }
 }

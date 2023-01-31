@@ -1,0 +1,29 @@
+﻿$utilities: (
+        "background-color": (
+                property: background-color,
+                class: bg,
+                values: map-merge(
+                                $theme-colors,
+                                (
+                                        "body": $body-bg,
+                                        "white": $white,
+                                        "transparent": transparent
+                                )
+                )
+        ),
+        "color": (
+                property: color,
+                class: text,
+                values: map-merge(
+                                $theme-colors,
+                                (
+                                        "white": $white,
+                                        "body": $body-color,
+                                        "muted": $text-muted,
+                                        "black-50": rgba($black, .5),
+                                        "white-50": rgba($white, .5),
+                                        "reset": inherit,
+                                )
+                )
+        ),
+);

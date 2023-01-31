@@ -25,11 +25,6 @@ public class ScaffoldModuleModel
     public string Name { get; set; }
 
     /// <summary>
-    /// <inheritdoc cref="ScaffoldModule.IconUrl"/>
-    /// </summary>
-    public string IconUrl { get; set; }
-
-    /// <summary>
     /// <inheritdoc cref="ScaffoldModule.ScaffoldTypeName"/>
     /// </summary>
     public string ScaffoldTypeName { get; set; }

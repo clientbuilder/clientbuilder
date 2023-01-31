@@ -52,5 +52,27 @@
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="UI\ClientBuilderHtml.tt">
+        <Generator>TextTemplatingFilePreprocessor</Generator>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <LastGenOutput>ClientBuilderHtml.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Include="UI\Scripts\dist\ClientBuilderScripts.js">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <EmbeddedResource Include="UI\Styles\dist\ClientBuilderStyles.css">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </EmbeddedResource>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Compile Update="UI\ClientBuilderHtml.cs">
+        <AutoGen>True</AutoGen>
+        <DesignTime>True</DesignTime>
+        <DependentUpon>ClientBuilderHtml.tt</DependentUpon>
+      </Compile>
+    </ItemGroup>
     
 </Project>

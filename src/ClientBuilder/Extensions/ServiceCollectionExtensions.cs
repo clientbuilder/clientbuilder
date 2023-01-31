@@ -27,12 +27,6 @@ public static class ServiceCollectionExtensions
     {
         var options = new ClientBuilderOptions();
         optionsAction?.Invoke(options);
-
-        if (!options.IsDevelopment)
-        {
-            return services;
-        }
-
         services.AddOptions<ClientBuilderOptions>();
         services.PostConfigure(optionsAction);
 
@@ -48,17 +42,6 @@ public static class ServiceCollectionExtensions
         {
             services.AddScoped(typeof(IScaffoldModule), modulesType);
         }
-
-        services.AddCors(corsOptions =>
-        {
-            corsOptions.AddPolicy(Constants.ClientBuilderCorsPolicy, corsBuilder =>
-            {
-                corsBuilder
-                    .WithOrigins(Constants.ClientBuilderClientUrls)
-                    .AllowAnyHeader()
-                    .AllowAnyMethod();
-            });
-        });
 
         return services;
     }

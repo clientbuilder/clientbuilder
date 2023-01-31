@@ -1,0 +1,231 @@
+﻿.btn {
+  @extend .btn-sm;
+  padding: 0.25rem 0.8rem;
+  font-weight: 600;
+  border-radius: $border-radius;
+  
+  &.btn-primary {
+    color: $secondary;
+  }
+  
+  &.btn-secondary {
+    color: $primary;
+  }
+  
+  .btn-inner-icon {
+    height: 14px;
+  }
+}
+
+.form-label {
+  font-size: .78rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.form-control {
+  font-size: .8rem;
+  border-radius: $border-radius;
+  @include box-shadow(none !important);
+  
+  &:focus,
+  &:active {
+    border-color: $primary;
+  }
+}
+
+.alert {
+  border-radius: $border-radius;
+  font-weight: 500;
+}
+
+.toast {
+  border-radius: $border-radius;
+}
+
+.validation-message {
+  font-size: .68rem;
+  font-weight: bold;
+}
+
+.main-box-shadow {
+  @include box-shadow(0 0 30px rgba(0, 0, 0, .10));
+}
+
+.table-responsive {
+  border-radius: $border-radius;
+  border-bottom: 30px solid $primary;
+}
+
+.table {
+  margin-bottom: 0;
+  
+  thead {
+    background: $primary;
+    color: $secondary;
+  }
+  
+  td,
+  th {
+    vertical-align: middle;
+    font-size: 0.9rem;
+    font-weight: 500;
+
+    &.fit {
+      white-space: nowrap;
+      width: 1%;
+    }
+  }
+  
+  td {
+    color: $text-color;
+  }
+}
+
+.modal {
+  .modal-content {
+    border: none;
+    border-radius: calc(.5rem + #{$border-radius}) calc(.5rem + #{$border-radius}) $border-radius $border-radius;
+
+    .modal-header {
+      padding: .8rem 1rem;
+      background: $primary;
+      border-top-left-radius: $border-radius;
+      border-top-right-radius: $border-radius;
+      
+      .btn-close {
+        background-size: .8em;
+        background-color: $white;
+        padding: 0.4rem;
+        margin-right: 0;
+      }
+
+      .modal-title {
+        color: $secondary;
+        font-weight: 600;
+        font-size: .9rem;
+      }
+    }
+  }
+}
+
+.toast {
+  .btn-close {
+    background-size: .8em;
+    background-color: $white;
+    padding: 0.4rem;
+    margin-right: 0;
+  }
+}
+
+.check-sign {
+  font-size: 1.2rem;
+
+  .generated {
+    color: $primary;
+  }
+  
+  .non-generated {
+    color: $gray-400;
+  }
+}
+
+.module-icon {
+  height: 26px;
+}
+
+.btn-get-trigger {
+  .btn-inner-icon {
+    filter: $img-filter-secondary;
+  }
+}
+
+#main-navbar-nav {
+  flex-direction: row !important;
+  
+  
+  .nav-link {
+    margin-right: .5rem;
+    margin-left: .5rem;
+    
+    .nav-link-icon {
+      display: block;
+      font-size: 1.4rem;
+      text-align: center;
+    }
+    
+    .nav-link-text {
+      display: block;
+      font-size: .86rem;
+      text-align: center;
+    }
+  }
+}
+
+.navbar-collapse {
+  @include respond-below(lg) {
+    position: absolute;
+    left: 0;
+    background: $white;
+    padding: 20px;
+    width: 100%;
+    top: 75px;
+    text-align: center;
+    @include box-shadow(0 50px 30px rgba(0,0,0,.3));
+  }
+  
+  &.collapsing {
+    transition: none !important;
+  }
+}
+
+.init-loading {
+  .loading-text {
+    font-size: 1.4rem;
+    font-weight: 500;
+  }
+}
+
+.footer {
+  .text {
+    font-size: .86rem;
+    font-weight: 500;
+    text-align: center;
+    
+    a {
+      color: $primary !important;
+      font-weight: bold;
+    }
+  }
+}
+
+.module-item {
+  .accordion-button {
+    color: $primary !important;
+    border-top-left-radius: $border-radius !important;
+    border-top-right-radius: $border-radius !important;
+    border-top: 2px solid darken($secondary, 5%);
+    border-left: 2px solid darken($secondary, 5%);
+    border-right: 2px solid darken($secondary, 5%);
+
+    @include box-shadow(none !important);
+    &.collapsed {
+      border-bottom-left-radius: $border-radius !important;
+      border-bottom-right-radius: $border-radius !important;
+      border-bottom: 2px solid darken($secondary, 5%);
+    }
+  }
+  
+  .accordion-body {
+    border-bottom-left-radius: $border-radius !important;
+    border-bottom-right-radius: $border-radius !important;
+    background: $white;
+    border-bottom: 2px solid darken($secondary, 5%);
+    border-left: 2px solid darken($secondary, 5%);
+    border-right: 2px solid darken($secondary, 5%);
+  }
+  
+  .border-bottom {
+    border-bottom: 2px solid darken($secondary, 5%) !important;
+  }
+}

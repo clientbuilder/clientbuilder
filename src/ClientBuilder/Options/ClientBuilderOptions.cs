@@ -24,7 +24,7 @@ public class ClientBuilderOptions
         this.ModulesTypes = new List<Type>();
         this.ClientApplicationsPaths = new Dictionary<string, string>();
 
-        this.PrimitiveTypes = new Dictionary<Type, string>(Defaults.PrimitiveTypes);
+        this.PrimitiveTypes = new Dictionary<Type, string>(ClientBuilderDefaults.PrimitiveTypes);
 
         this.InitializeDefaults();
     }
@@ -55,12 +55,6 @@ public class ClientBuilderOptions
     /// Paths of the client applications used use for the purposes of client builder.
     /// </summary>
     public Dictionary<string, string> ClientApplicationsPaths { get; private set; }
-
-    /// <summary>
-    /// Indicates whether the application environment is development. Default is true.
-    /// Please consider that if the flag is set to false Client Builder is going to be disabled.
-    /// </summary>
-    public bool IsDevelopment { get; set; } = true;
 
     /// <summary>
     /// The content root path of the main application used for assembly scanning (ASP.NET app).

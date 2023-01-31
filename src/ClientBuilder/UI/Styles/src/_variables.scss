@@ -1,0 +1,34 @@
+﻿$main-color: #666285;
+$second-color: #dcdaef;
+
+$white: white;
+$black: black;
+
+$primary: $main-color;
+$secondary: $second-color;
+$success: #5e9343;
+$danger: #b43a3a;
+$info: #3d7496;
+$warning: #a1854f;
+$light: #dedede;
+$dark: #2b2b2b;
+
+$theme-colors: (
+        primary: $primary,
+        secondary: $secondary,
+        success: $success,
+        info: $info,
+        warning: $warning,
+        danger: $danger,
+        light: $light,
+        dark: $dark,
+);
+
+$text-color: darken($primary, 12%);
+
+$img-filter-primary: invert(39%) sepia(18%) saturate(703%) hue-rotate(207deg) brightness(93%) contrast(85%);
+$img-filter-secondary: invert(97%) sepia(14%) saturate(1660%) hue-rotate(181deg) brightness(96%) contrast(95%);
+
+$border-radius: 0.76rem;
+
+$font-family-main: 'Montserrat', sans-serif;
