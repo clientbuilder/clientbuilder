@@ -113,26 +113,6 @@ public static class ApplicationBuilderExtensions
     {
         try
         {
-            var random = new Random();
-            var randomValue = random.Next(1, 10);
-            if (randomValue % 2 == 0)
-            {
-                return Results.BadRequest("to 2");
-            }
-
-            if (randomValue % 3 == 0)
-            {
-                return Results.Ok(new GenerationResult
-                {
-                    GenerationStatus = ScaffoldModuleGenerationStatusType.SuccessfulWithErrors,
-                    Errors = new[]
-                    {
-                        "Some error 1",
-                        "Some error 2",
-                    },
-                });
-            }
-
             var result = await moduleGenerator.GenerateAsync(modules.Select(x => x.Id));
             return Results.Ok(result);
         }
