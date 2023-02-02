@@ -4,7 +4,7 @@
         <Version>$(PACKAGE_VERSION)</Version>
 <!--        <Version>0.0.0</Version>-->
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-        <Copyright>2022 Client Builder</Copyright>
+        <Copyright>2023 Client Builder</Copyright>
         <Company>gsk567</Company>
         <Authors>Georgi Karagogov</Authors>
         <Product>Client Builder</Product>
@@ -73,6 +73,10 @@
         <DesignTime>True</DesignTime>
         <DependentUpon>ClientBuilderHtml.tt</DependentUpon>
       </Compile>
+    </ItemGroup>
+    
+    <ItemGroup>
+      <ProjectReference Include="..\ClientBuilder.Attributes\ClientBuilder.Attributes.csproj" />
     </ItemGroup>
     
 </Project>

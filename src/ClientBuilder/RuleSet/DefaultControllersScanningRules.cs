@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ClientBuilder.DataAnnotations;
+using ClientBuilder.Attributes;
 using ClientBuilder.Extensions;
 
 namespace ClientBuilder.RuleSet;

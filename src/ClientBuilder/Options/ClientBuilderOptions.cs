@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using ClientBuilder.Common;
 using ClientBuilder.Core.Modules;
+using ClientBuilder.Exceptions;
 using ClientBuilder.RuleSet;
 
 namespace ClientBuilder.Options;
@@ -22,8 +23,7 @@ public class ClientBuilderOptions
         this.Assemblies = new List<Assembly>();
         this.ScanningRules = new List<IScanningRules>();
         this.ModulesTypes = new List<Type>();
-        this.ClientApplicationsPaths = new Dictionary<string, string>();
-
+        this.Clients = new List<ClientOptions>();
         this.PrimitiveTypes = new Dictionary<Type, string>(ClientBuilderDefaults.PrimitiveTypes);
 
         this.InitializeDefaults();
@@ -52,9 +52,9 @@ public class ClientBuilderOptions
     public IDictionary<Type, string> PrimitiveTypes { get; }
 
     /// <summary>
-    /// Paths of the client applications used use for the purposes of client builder.
+    /// Collection of all registered clients.
     /// </summary>
-    public Dictionary<string, string> ClientApplicationsPaths { get; private set; }
+    public IList<ClientOptions> Clients { get; }
 
     /// <summary>
     /// The content root path of the main application used for assembly scanning (ASP.NET app).
@@ -64,31 +64,53 @@ public class ClientBuilderOptions
     /// <summary>
     /// Method that set the mobile application path into the options.
     /// </summary>
-    /// <param name="clientIdentifier"></param>
+    /// <param name="clientId"></param>
+    /// <param name="clientName"></param>
     /// <param name="amountDirectoriesBack"></param>
     /// <param name="paths">Paths are defined by the solution folder.</param>
-    public void SetClientApplicationPath(string clientIdentifier, ushort amountDirectoriesBack, params string[] paths)
+    public void AddClient(string clientId, string clientName, ushort amountDirectoriesBack, params string[] paths)
     {
+        if (string.IsNullOrWhiteSpace(clientId))
+        {
+            throw new ArgumentNullException(clientId);
+        }
+
+        if (string.IsNullOrWhiteSpace(clientName))
+        {
+            throw new ArgumentNullException(clientName);
+        }
+
+        if (this.Clients.Any(x => x.Id?.Equals(clientId, StringComparison.InvariantCultureIgnoreCase) ?? false))
+        {
+            throw new ClientBuilderException($"Client with ID: '{clientId}' already exists");
+        }
+
         var pathSegments = new List<string>();
         pathSegments.AddRange(Enumerable.Repeat("..", amountDirectoriesBack));
         pathSegments.AddRange(paths);
-        this.ClientApplicationsPaths[clientIdentifier] = Path.Combine(pathSegments.ToArray());
+        this.Clients.Add(new ClientOptions
+        {
+            Id = clientId,
+            Name = clientName,
+            Path = Path.Combine(pathSegments.ToArray()),
+        });
     }
 
     /// <summary>
-    /// Returns client path based on specified identifier.
+    /// Returns client options for a specified identifier.
     /// </summary>
-    /// <param name="clientIdentifier"></param>
+    /// <param name="clientId"></param>
     /// <returns></returns>
-    /// <exception cref="KeyNotFoundException">Throw an error in case of undefined client path.</exception>
-    public string GetClientApplicationPath(string clientIdentifier)
+    public ClientOptions GetClient(string clientId)
     {
-        if (!this.ClientApplicationsPaths.ContainsKey(clientIdentifier))
+        var client = this.Clients.FirstOrDefault(x =>
+            x.Id.Equals(clientId, StringComparison.InvariantCultureIgnoreCase));
+        if (client == null)
         {
-            throw new KeyNotFoundException($"There is no defined client application path for that identifier '{clientIdentifier}'");
+            throw new ClientBuilderException($"There is no defined client with ID: '{clientId}'");
         }
 
-        return this.ClientApplicationsPaths[clientIdentifier];
+        return client;
     }
 
     /// <summary>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ClientBuilder.DataAnnotations;
+namespace ClientBuilder.Attributes;
 
 /// <summary>
 /// Attribute that add additional key information to enumeration.

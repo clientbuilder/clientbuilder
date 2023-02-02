@@ -18,13 +18,6 @@ public interface IScaffoldModuleGenerator
     Task<GenerationResult> GenerateAsync(IEnumerable<string> modulesIds);
 
     /// <summary>
-    /// Generates modules from specified instance type.
-    /// </summary>
-    /// <param name="instanceType"></param>
-    /// <returns></returns>
-    Task<GenerationResult> GenerateAsync(InstanceType instanceType);
-
-    /// <summary>
     /// Generate modules from specified client Id.
     /// </summary>
     /// <param name="clientId"></param>

@@ -1,20 +1,15 @@
-﻿using System.IO;
-using System.Threading.Tasks;
-using ClientBuilder.Common;
+﻿using System.Threading.Tasks;
 using ClientBuilder.Core.Modules;
 
 namespace ClientBuilder.TestAssembly.Modules.TestWithError;
 
 public class TestWithErrorModule : ScaffoldModule
 {
-    public TestWithErrorModule(IFileSystemManager fileSystemManager)
-        : base(fileSystemManager)
+    public TestWithErrorModule()
     {
         this.Name = "Test With Error Module";
-        this.ClientId = "test.error";
+        this.ClientId = "test.client";
         this.Order = 1;
-        this.ScaffoldTypeName = "Test";
-        this.Type = InstanceType.Undefined;
     }
 
     public override async Task SetupAsync()
@@ -22,7 +17,7 @@ public class TestWithErrorModule : ScaffoldModule
         this.AddFile(new ScaffoldModuleFile
         {
             Name = "file1.json",
-            RelativePath = Directory.GetCurrentDirectory(),
+            RelativePath = "folder2",
             Template = new T4FileTemplate(null),
             ContextData = new { Data = "SimpleData" },
             ReferenceId = "file1"

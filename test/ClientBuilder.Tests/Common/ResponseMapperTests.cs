@@ -5,6 +5,7 @@ using ClientBuilder.Common;
 using ClientBuilder.Core.Modules;
 using ClientBuilder.Models;
 using ClientBuilder.TestAssembly.Modules.SimpleTest;
+using ClientBuilder.Tests.Fakes;
 using FluentAssertions;
 using Moq;
 using Xunit;
@@ -16,9 +17,9 @@ public class ResponseMapperTests
     [Fact]
     public async Task MapToModel_OnScaffoldModule_ShouldMapToProperResponseModel()
     {
-        var module = new SimpleTestModule(Mock.Of<IFileSystemManager>());
-        module.SetSourceDirectory("NewFolder");
+        var module = new SimpleTestModule();
         await module.SetupAsync();
+        module.ConsolidateModule(new OptionsAccessorFake().Value);
 
         var mappedModule = ResponseMapper.MapToModel(module);
 
@@ -29,11 +30,10 @@ public class ResponseMapperTests
                 module.Id,
                 module.Name,
                 module.Order,
-                module.ScaffoldTypeName,
-                module.SourceDirectory,
-                module.Type,
-                module.Generated,
                 module.ClientId,
+                module.ClientName,
+                module.SourceDirectory,
+                module.Generated,
             });
         
         var expectedFiles = module.GetFiles().Select(x => new ScaffoldModuleFileSystemItemModel

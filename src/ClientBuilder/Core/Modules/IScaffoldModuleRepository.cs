@@ -28,11 +28,4 @@ public interface IScaffoldModuleRepository
     /// <param name="clientId"></param>
     /// <returns></returns>
     Task<IReadOnlyCollection<ScaffoldModule>> GetModulesByClientIdAsync(string clientId);
-
-    /// <summary>
-    /// Get modules by instance type.
-    /// </summary>
-    /// <param name="type"></param>
-    /// <returns></returns>
-    Task<IReadOnlyCollection<ScaffoldModule>> GetModulesByInstanceAsync(InstanceType type);
 }

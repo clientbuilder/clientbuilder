@@ -74,17 +74,6 @@ public static class ApplicationBuilderExtensions
         });
 
         app.MapPost(
-            $"{ApiBaseRoute}/generate/by-instance",
-            async (
-                GenerationByInstanceTypeRequest request,
-                IScaffoldModuleRepository moduleRepository,
-                IScaffoldModuleGenerator moduleGenerator) =>
-        {
-            var modules = await moduleRepository.GetModulesByInstanceAsync(request.InstanceType);
-            return await TriggerGenerationAsync(modules, moduleGenerator);
-        });
-
-        app.MapPost(
             $"{ApiBaseRoute}/generate/by-client",
             async (
                 GenerationByClientIdRequest request,

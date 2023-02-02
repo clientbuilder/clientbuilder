@@ -4,6 +4,7 @@ using ClientBuilder.Core.Modules;
 using ClientBuilder.Exceptions;
 using ClientBuilder.TestAssembly.Modules.EmptyTest;
 using ClientBuilder.TestAssembly.Modules.SimpleTest;
+using ClientBuilder.Tests.Fakes;
 using FluentAssertions;
 using Moq;
 using Xunit;
@@ -18,19 +19,22 @@ public class ScaffoldModulesTests
     [Theory]
     public void ValidateModule_OnSimpleModuleWithInvalidData_ShouldValidateModuleCorrectly(string name, string clientId)
     {
-        var module = new SimpleTestModule(Mock.Of<IFileSystemManager>())
+        Assert.Throws<ClientBuilderException>(() =>
         {
-            Name = name,
-            ClientId = clientId
-        };
+            var module = new SimpleTestModule()
+            {
+                Name = name,
+                ClientId = clientId
+            };
 
-        Assert.Throws<ClientBuilderException>(() => module.ValidateModule());
+            module.ValidateModule();
+        });
     }
 
     [Fact]
     public void AddFile_OnAdditionalFile_ShouldInsertTheNewFile()
     {
-        var module = new SimpleTestModule(Mock.Of<IFileSystemManager>());
+        var module = new SimpleTestModule();
         var filesCount = module.GetFiles().Count;
         module.AddFile(new ScaffoldModuleFile());
         filesCount.Should().Be(module.GetFiles().Count - 1);
@@ -39,7 +43,7 @@ public class ScaffoldModulesTests
     [Fact]
     public void AddFolder_OnAdditionalFolder_ShouldInsertTheNewFolder()
     {
-        var module = new SimpleTestModule(Mock.Of<IFileSystemManager>());
+        var module = new SimpleTestModule();
         var foldersCount = module.GetFolders().Count;
         module.AddFolder(new ScaffoldModuleFolder());
         foldersCount.Should().Be(module.GetFolders().Count - 1);
@@ -48,8 +52,7 @@ public class ScaffoldModulesTests
     [Fact]
     public async Task GetFile_OnProperInput_ShouldReturnsTheFile()
     {
-        var module = new SimpleTestModule(Mock.Of<IFileSystemManager>());
-        module.SetSourceDirectory("NewFolder");
+        var module = new SimpleTestModule();
         await module.SetupAsync();
 
         var file = module.GetFile("file1");
@@ -62,8 +65,7 @@ public class ScaffoldModulesTests
     [Fact]
     public async Task GetFolder_OnProperInput_ShouldReturnsTheFile()
     {
-        var module = new SimpleTestModule(Mock.Of<IFileSystemManager>());
-        module.SetSourceDirectory("NewFolder");
+        var module = new SimpleTestModule();
         await module.SetupAsync();
 
         var folder = module.GetFolder("folder1");
@@ -76,8 +78,7 @@ public class ScaffoldModulesTests
     [Fact]
     public async Task GetFile_OnNonExistingFileInput_ShouldReturnsTheFile()
     {
-        var module = new SimpleTestModule(Mock.Of<IFileSystemManager>());
-        module.SetSourceDirectory("NewFolder");
+        var module = new SimpleTestModule();
         await module.SetupAsync();
 
         var file = module.GetFile("file2");
@@ -87,8 +88,7 @@ public class ScaffoldModulesTests
     [Fact]
     public async Task GetFolder_OnNonExistingFolderInput_ShouldReturnsTheFile()
     {
-        var module = new SimpleTestModule(Mock.Of<IFileSystemManager>());
-        module.SetSourceDirectory("NewFolder");
+        var module = new SimpleTestModule();
         await module.SetupAsync();
 
         var folder = module.GetFolder("folder2");
@@ -103,10 +103,10 @@ public class ScaffoldModulesTests
             .Setup(x => x.IsFileExists(It.IsAny<string>()))
             .Returns(true);
         
-        var module = new SimpleTestModule(fileSystemManagerMock.Object);
-        module.SetSourceDirectory(Directory.GetCurrentDirectory());
+        var module = new SimpleTestModule();
         await module.SetupAsync();
-        module.Sync();
+        module.ConsolidateModule(new OptionsAccessorFake().Value);
+        module.Sync(Mock.Of<IFileSystemManager>());
 
         module
             .Generated
@@ -117,10 +117,9 @@ public class ScaffoldModulesTests
     [Fact]
     public async Task Sync_OnEmptyModuleSync_ShouldCheckCorrectly()
     {
-        var module = new EmptyTestModule(Mock.Of<IFileSystemManager>());
-        module.SetSourceDirectory(Directory.GetCurrentDirectory());
+        var module = new EmptyTestModule();
         await module.SetupAsync();
-        module.Sync();
+        module.Sync(Mock.Of<IFileSystemManager>());
 
         module
             .Generated

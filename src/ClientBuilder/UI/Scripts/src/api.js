@@ -11,13 +11,6 @@ export const generate = (moduleId) => {
         moduleId
     });
 }
-
-export const generateByInstance = (instanceType) => {
-    return axios.post(`${API_BASE}/generate/by-instance`, {
-        instanceType
-    });
-}
-
 export const generateByClientId = (clientId) => {
     return axios.post(`${API_BASE}/generate/by-client`, {
         clientId

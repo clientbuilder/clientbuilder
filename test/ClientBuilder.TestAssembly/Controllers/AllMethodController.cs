@@ -1,4 +1,4 @@
-﻿using ClientBuilder.DataAnnotations;
+﻿using ClientBuilder.Attributes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClientBuilder.TestAssembly.Controllers;

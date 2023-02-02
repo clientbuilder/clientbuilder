@@ -25,14 +25,9 @@ public class ScaffoldModuleModel
     public string Name { get; set; }
 
     /// <summary>
-    /// <inheritdoc cref="ScaffoldModule.ScaffoldTypeName"/>
+    /// <inheritdoc cref="ScaffoldModule.ClientName"/>
     /// </summary>
-    public string ScaffoldTypeName { get; set; }
-
-    /// <summary>
-    /// <inheritdoc cref="ScaffoldModule.Type"/>
-    /// </summary>
-    public InstanceType Type { get; set; }
+    public string ClientName { get; set; }
 
     /// <summary>
     /// <inheritdoc cref="ScaffoldModule.ClientId"/>

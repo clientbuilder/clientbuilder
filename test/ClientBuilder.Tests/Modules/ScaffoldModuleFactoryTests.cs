@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ClientBuilder.Core.Modules;
 using ClientBuilder.Options;
 using ClientBuilder.TestAssembly.Modules.SimpleTest;
+using ClientBuilder.Tests.Fakes;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Moq;
@@ -17,17 +18,14 @@ public class ScaffoldModuleFactoryTests
     [Fact]
     public async Task BuildScaffoldModulesAsync_OnProperSetup_ShouldReturnCorrectModules()
     {
-        var mainModule = new SimpleTestModule(Mock.Of<IFileSystemManager>());
+        var mainModule = new SimpleTestModule();
         
         var factory = this.GetSubject(
             new List<ScaffoldModule>
             {
                 mainModule,
             },
-            new ClientBuilderOptions
-            {
-                ContentRootPath = Directory.GetCurrentDirectory(),
-            });
+            new OptionsAccessorFake().Value);
 
         var modules = await factory.BuildScaffoldModulesAsync();
 
@@ -55,15 +53,9 @@ public class ScaffoldModuleFactoryTests
 
         modules
             .First()
-            .Type
+            .ClientName
             .Should()
-            .Be(mainModule.Type);
-        
-        modules
-            .First()
-            .ScaffoldTypeName
-            .Should()
-            .Be(mainModule.ScaffoldTypeName);
+            .Be(mainModule.ClientName);
         
         modules
             .First()
@@ -74,6 +66,9 @@ public class ScaffoldModuleFactoryTests
     
     private IScaffoldModuleFactory GetSubject(IEnumerable<ScaffoldModule> modules, ClientBuilderOptions options = null)
     {
-        return new ScaffoldModuleFactory(Microsoft.Extensions.Options.Options.Create<ClientBuilderOptions>(options ?? new ClientBuilderOptions()), modules);
+        return new ScaffoldModuleFactory(
+            Mock.Of<IFileSystemManager>(),
+            Microsoft.Extensions.Options.Options.Create(options ?? new ClientBuilderOptions()),
+            modules);
     }
 }

@@ -1,4 +1,4 @@
-﻿using ClientBuilder.DataAnnotations;
+﻿using ClientBuilder.Attributes;
 using ClientBuilder.TestAssembly.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

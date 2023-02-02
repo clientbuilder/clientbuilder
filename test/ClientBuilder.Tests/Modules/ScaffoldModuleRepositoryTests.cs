@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using ClientBuilder.Common;
 using ClientBuilder.Core.Modules;
 using ClientBuilder.TestAssembly.Modules.SimpleTest;
+using ClientBuilder.Tests.Fakes;
 using FluentAssertions;
 using Moq;
 using Xunit;
@@ -73,32 +74,6 @@ public class ScaffoldModuleRepositoryTests
             .Should()
             .HaveCount(0);
     }
-    
-    [Fact]
-    public async Task GetModulesByInstanceAsync_OnStandardInvocation_ShouldReturnsCorrectResult()
-    {
-        var repository = this.GetSubject();
-        var modules = await repository.GetModulesByInstanceAsync(InstanceType.Web);
-        modules
-            .Should()
-            .HaveCount(1);
-
-        modules
-            .First()
-            .Name
-            .Should()
-            .Be("Simple Test Module");
-    }
-    
-    [Fact]
-    public async Task GetModulesByInstanceAsync_OnWrongInvocation_ShouldReturnsCorrectResult()
-    {
-        var repository = this.GetSubject();
-        var modules = await repository.GetModulesByInstanceAsync(InstanceType.Mobile);
-        modules
-            .Should()
-            .HaveCount(0);
-    }
 
     private IScaffoldModuleRepository GetSubject()
     {
@@ -107,7 +82,7 @@ public class ScaffoldModuleRepositoryTests
             .Setup(x => x.BuildScaffoldModulesAsync())
             .Returns(Task.FromResult<IEnumerable<ScaffoldModule>>(new List<ScaffoldModule>
             {
-                new SimpleTestModule(Mock.Of<IFileSystemManager>()),
+                new SimpleTestModule(),
             }));
 
         return new ScaffoldModuleRepository(factoryMock.Object);

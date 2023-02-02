@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ClientBuilder.DataAnnotations;
+namespace ClientBuilder.Attributes;
 
 /// <summary>
 /// Attribute that identifies decorated model to be used as a target by the assembly scanner.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ClientBuilder.DataAnnotations;
+namespace ClientBuilder.Attributes;
 
 /// <summary>
 /// Attribute that identifies application element that must be excluded from the Client Builder assembly scanning.

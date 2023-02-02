@@ -37,12 +37,4 @@ public class ScaffoldModuleRepository : IScaffoldModuleRepository
         .Where(x => x.ClientId == clientId)
         .ToList()
         .AsReadOnly();
-
-    /// <inheritdoc/>
-    public virtual async Task<IReadOnlyCollection<ScaffoldModule>> GetModulesByInstanceAsync(InstanceType type) =>
-        (await this.GetModulesAsync())
-        .OrderBy(x => x.Order)
-        .Where(x => x.Type == type)
-        .ToList()
-        .AsReadOnly();
 }

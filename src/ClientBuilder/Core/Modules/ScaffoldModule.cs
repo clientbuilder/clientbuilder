@@ -3,8 +3,9 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using ClientBuilder.Common;
 using ClientBuilder.Exceptions;
+using ClientBuilder.Options;
+using Microsoft.Extensions.Options;
 
 namespace ClientBuilder.Core.Modules;
 
@@ -13,18 +14,14 @@ namespace ClientBuilder.Core.Modules;
 /// </summary>
 public abstract class ScaffoldModule : IScaffoldModule
 {
-    private readonly IFileSystemManager fileSystemManager;
     private readonly IList<ScaffoldModuleFile> files;
     private readonly IList<ScaffoldModuleFolder> folders;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ScaffoldModule"/> class.
     /// </summary>
-    /// <param name="fileSystemManager"></param>
-    protected ScaffoldModule(IFileSystemManager fileSystemManager)
+    protected ScaffoldModule()
     {
-        this.fileSystemManager = fileSystemManager;
-
         this.files = new List<ScaffoldModuleFile>();
         this.folders = new List<ScaffoldModuleFolder>();
     }
@@ -45,17 +42,12 @@ public abstract class ScaffoldModule : IScaffoldModule
     public string Name { get; set; }
 
     /// <summary>
-    /// Type name of the module. The main use of this property is to give the name of the grouped modules.
+    /// Name of the client group from which the module is.
     /// </summary>
-    public string ScaffoldTypeName { get; protected set; }
+    public string ClientName { get; private set; }
 
     /// <summary>
-    /// Instance type of the module - target application type of the generation (web, mobile, etc).
-    /// </summary>
-    public InstanceType Type { get; set; }
-
-    /// <summary>
-    /// Identification of the module by client type that allows easy modules grouping.
+    /// Id of the client group from which the module is.
     /// </summary>
     public string ClientId { get; set; }
 
@@ -74,15 +66,6 @@ public abstract class ScaffoldModule : IScaffoldModule
     /// </summary>
     /// <returns></returns>
     public abstract Task SetupAsync();
-
-    /// <summary>
-    /// Set source directory.
-    /// </summary>
-    /// <param name="sourceDirectory"></param>
-    public void SetSourceDirectory(string sourceDirectory)
-    {
-        this.SourceDirectory = sourceDirectory;
-    }
 
     /// <summary>
     /// Add module file.
@@ -133,9 +116,49 @@ public abstract class ScaffoldModule : IScaffoldModule
         new ReadOnlyCollection<ScaffoldModuleFolder>(this.folders);
 
     /// <summary>
+    /// Validates module properties.
+    /// </summary>
+    public void ValidateModule()
+    {
+        var moduleTypeName = this.GetType().FullName;
+        if (string.IsNullOrWhiteSpace(this.Name))
+        {
+            throw new ClientBuilderException($"You must specify 'Name' for the {moduleTypeName}");
+        }
+
+        if (string.IsNullOrWhiteSpace(this.ClientId))
+        {
+            throw new ClientBuilderException($"You must specify 'ClientId' for the {moduleTypeName}");
+        }
+    }
+
+    /// <summary>
+    /// Consolidates fields that requires interaction with the options.
+    /// </summary>
+    /// <param name="options"></param>
+    internal void ConsolidateModule(ClientBuilderOptions options)
+    {
+        this.SourceDirectory = options.ContentRootPath;
+        var client = options.GetClient(this.ClientId);
+        this.ClientName = client.Name;
+        foreach (var folder in this.folders)
+        {
+            folder.RelativePath = string.IsNullOrWhiteSpace(folder.RelativePath) ?
+                client.Path : Path.Combine(client.Path, folder.RelativePath);
+        }
+
+        foreach (var file in this.files)
+        {
+            file.RelativePath = string.IsNullOrWhiteSpace(file.RelativePath) ?
+                client.Path : Path.Combine(client.Path, file.RelativePath);
+        }
+    }
+
+    /// <summary>
     /// Sync defined folders and files with the generated ones.
     /// </summary>
-    public void Sync()
+    /// <param name="fileSystemManager"></param>
+    internal void Sync(IFileSystemManager fileSystemManager)
     {
         bool filesChecked = false;
         if (this.files != null && this.files.Count > 0)
@@ -145,7 +168,7 @@ public abstract class ScaffoldModule : IScaffoldModule
             foreach (var file in this.files)
             {
                 var currentFilePath = Path.Combine(this.SourceDirectory, file.RelativePath, file.Name);
-                this.Generated = this.Generated && this.fileSystemManager.IsFileExists(currentFilePath);
+                this.Generated = this.Generated && fileSystemManager.IsFileExists(currentFilePath);
             }
         }
 
@@ -160,25 +183,8 @@ public abstract class ScaffoldModule : IScaffoldModule
             foreach (var folder in this.folders)
             {
                 var currentFolderPath = Path.Combine(this.SourceDirectory, folder.RelativePath, folder.Name);
-                this.Generated = this.Generated && this.fileSystemManager.IsFolderExists(currentFolderPath);
+                this.Generated = this.Generated && fileSystemManager.IsFolderExists(currentFolderPath);
             }
-        }
-    }
-
-    /// <summary>
-    /// Validates module properties.
-    /// </summary>
-    public void ValidateModule()
-    {
-        var moduleTypeName = this.GetType().FullName;
-        if (string.IsNullOrWhiteSpace(this.Name))
-        {
-            throw new ClientBuilderException($"You must specify 'Name' for the {moduleTypeName}");
-        }
-
-        if (string.IsNullOrWhiteSpace(this.ClientId))
-        {
-            throw new ClientBuilderException($"You must specify 'ClientId' for the {moduleTypeName}");
         }
     }
 }

@@ -36,13 +36,6 @@ public class ScaffoldModuleGenerator : IScaffoldModuleGenerator
     }
 
     /// <inheritdoc/>
-    public async Task<GenerationResult> GenerateAsync(InstanceType instanceType)
-    {
-        var targetModules = await this.scaffoldModuleRepository.GetModulesByInstanceAsync(instanceType);
-        return this.GenerateModules(targetModules);
-    }
-
-    /// <inheritdoc/>
     public async Task<GenerationResult> GenerateAsync(string clientId)
     {
         var targetModules = await this.scaffoldModuleRepository.GetModulesByClientIdAsync(clientId);

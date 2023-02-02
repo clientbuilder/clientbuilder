@@ -27,9 +27,9 @@ public class ScaffoldModuleGeneratorTests
     [Fact]
     public async Task GenerateAsync_OnModuleWithPartialError_ShouldGenerateNothing()
     {
-        var module = new TestWithPartialErrorModule(this.fileSystemManager);
-        module.SetSourceDirectory(string.Empty);
+        var module = new TestWithPartialErrorModule();
         await module.SetupAsync();
+        module.ConsolidateModule(new OptionsAccessorFake().Value);
         
         var modules = (new List<ScaffoldModule> { module }).AsReadOnly();
         
@@ -66,8 +66,7 @@ public class ScaffoldModuleGeneratorTests
     [Fact]
     public async Task GenerateAsync_OnModuleWithError_ShouldGenerateNothing()
     {
-        var module = new TestWithErrorModule(this.fileSystemManager);
-        module.SetSourceDirectory(string.Empty);
+        var module = new TestWithErrorModule();
         await module.SetupAsync();
         
         var modules = (new List<ScaffoldModule> { module }).AsReadOnly();
@@ -105,9 +104,10 @@ public class ScaffoldModuleGeneratorTests
     [Fact]
     public async Task GenerateAsync_OnSimpleModule_ShouldGenerateModulesFilesAndFolders()
     {
-        var module = new SimpleTestModule(this.fileSystemManager);
-        module.SetSourceDirectory(string.Empty);
+        var module = new SimpleTestModule();
         await module.SetupAsync();
+        var options = new OptionsAccessorFake().Value;
+        module.ConsolidateModule(options);
         
         var modules = (new List<ScaffoldModule> { module }).AsReadOnly();
         
@@ -139,7 +139,7 @@ public class ScaffoldModuleGeneratorTests
             .CreatedFolders
             .First()
             .Should()
-            .Be(Path.Combine(Directory.GetCurrentDirectory(), "folder1"));
+            .Be(Path.Combine(options.ContentRootPath, OptionsAccessorFake.ExpectedClientPath, "folder1"));
 
         this.fileSystemManager
             .CreatedFiles
@@ -151,7 +151,7 @@ public class ScaffoldModuleGeneratorTests
             .First()
             .Key
             .Should()
-            .Be(Path.Combine(Directory.GetCurrentDirectory(), "file1.json"));
+            .Be(Path.Combine(options.ContentRootPath, OptionsAccessorFake.ExpectedClientPath, "folder1", "file1.json"));
 
         TestUtilities
             .NormalizeJson(
@@ -164,72 +164,12 @@ public class ScaffoldModuleGeneratorTests
     }
 
     [Fact]
-    public async Task GenerateAsync_OnSimpleModuleByInstanceType_ShouldGenerateModulesFilesAndFolders()
-    {
-        var module = new SimpleTestModule(this.fileSystemManager);
-        module.SetSourceDirectory(string.Empty);
-        await module.SetupAsync();
-        
-        var modules = (new List<ScaffoldModule> { module }).AsReadOnly();
-        
-        var repositoryMock = new Mock<ScaffoldModuleRepository>(null);
-        repositoryMock
-            .Setup(x => x.GetModulesByInstanceAsync(InstanceType.Web))
-            .Returns(Task.FromResult<IReadOnlyCollection<ScaffoldModule>>(modules));
-
-        var generator = this.GetSubject(repositoryMock.Object);
-
-        var generationResult = await generator.GenerateAsync(InstanceType.Web);
-        
-        generationResult
-            .Errors
-            .Should()
-            .BeEmpty();
-        
-        generationResult
-            .GenerationStatus
-            .Should()
-            .Be(ScaffoldModuleGenerationStatusType.Successful);
-        
-        this.fileSystemManager
-            .CreatedFolders
-            .Should()
-            .HaveCount(1);
-        
-        this.fileSystemManager
-            .CreatedFolders
-            .First()
-            .Should()
-            .Be(Path.Combine(Directory.GetCurrentDirectory(), "folder1"));
-
-        this.fileSystemManager
-            .CreatedFiles
-            .Should()
-            .HaveCount(1);
-
-        this.fileSystemManager
-            .CreatedFiles
-            .First()
-            .Key
-            .Should()
-            .Be(Path.Combine(Directory.GetCurrentDirectory(), "file1.json"));
-
-        TestUtilities
-            .NormalizeJson(
-                this.fileSystemManager
-                    .CreatedFiles
-                    .First()
-                    .Value)
-            .Should()
-            .Be(TestUtilities.NormalizeJson("{\"data\":\"SimpleData\"}"));
-    }
-    
-    [Fact]
     public async Task GenerateAsync_OnSimpleModuleByClientId_ShouldGenerateModulesFilesAndFolders()
     {
-        var module = new SimpleTestModule(this.fileSystemManager);
-        module.SetSourceDirectory(string.Empty);
+        var module = new SimpleTestModule();
         await module.SetupAsync();
+        var options = new OptionsAccessorFake().Value;
+        module.ConsolidateModule(options);
         
         var modules = (new List<ScaffoldModule> { module }).AsReadOnly();
         
@@ -261,7 +201,7 @@ public class ScaffoldModuleGeneratorTests
             .CreatedFolders
             .First()
             .Should()
-            .Be(Path.Combine(Directory.GetCurrentDirectory(), "folder1"));
+            .Be(Path.Combine(options.ContentRootPath, OptionsAccessorFake.ExpectedClientPath, "folder1"));
 
         this.fileSystemManager
             .CreatedFiles
@@ -273,7 +213,7 @@ public class ScaffoldModuleGeneratorTests
             .First()
             .Key
             .Should()
-            .Be(Path.Combine(Directory.GetCurrentDirectory(), "file1.json"));
+            .Be(Path.Combine(options.ContentRootPath, OptionsAccessorFake.ExpectedClientPath, "folder1", "file1.json"));
 
         TestUtilities
             .NormalizeJson(

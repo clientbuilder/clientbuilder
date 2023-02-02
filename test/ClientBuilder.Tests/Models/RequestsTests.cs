@@ -34,18 +34,4 @@ public class RequestsTests
             .Should()
             .Be("vue.translations");
     }
-    
-    [Fact]
-    public void Get_OnCreatingGenerationByInstanceTypeRequest_ShouldCreateCorrectInstance()
-    {
-        var request = new GenerationByInstanceTypeRequest()
-        {
-            InstanceType = InstanceType.Mobile
-        };
-
-        request
-            .InstanceType
-            .Should()
-            .Be(InstanceType.Mobile);
-    }
 }

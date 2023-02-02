@@ -13,15 +13,7 @@
                         class="btn btn-primary btn-get-trigger ms-auto me-1"
                         @click="generateModulesByClientId(option.clientId)">
                   <span class="d-flex">
-                    <span class="my-auto">Generate {{ option.scaffoldTypeName }} ({{ option.count }})</span>
-                  </span>
-                </button>
-                <button v-for="(option, optionIndex) in instancesOptions"
-                        :key="`instance-${option.type}-${optionIndex}`"
-                        type="button" class="btn btn-primary btn-get-trigger ms-auto me-1"
-                        @click="generateModulesByInstanceType(option.type)">
-                  <span class="d-flex">
-                    <span class="my-auto">Generate {{ option.instanceName }} ({{ option.count }})</span>
+                    <span class="my-auto">Generate {{ option.clientName }} ({{ option.count }})</span>
                   </span>
                 </button>
                 <button type="button" class="btn btn-primary mx-0" @click="generateModule(null)">
@@ -42,7 +34,7 @@
                     aria-expanded="true"
                     :aria-controls="`collapse-${module.id}`">
               {{ module.name }}
-              <span class="badge bg-primary ms-2">{{ module.scaffoldTypeName }}</span>
+              <span class="badge bg-primary ms-2">{{ module.clientName }}</span>
               <span class="badge bg-info ms-2">{{ instanceMap[module.type] }}</span>
               <span class="ms-2">
               <span v-if="module.generated" class="badge bg-success">Generated</span>
@@ -119,7 +111,7 @@ const handleGenerationRequest = (request) => {
           message
         })
 
-        if (res.data.generationStatus === NotificationStates.Success) {
+        if (res.data.generationStatus !== NotificationStates.Error) {
           reloadModules();
         }
       })
@@ -140,10 +132,6 @@ const generateModulesByClientId = (clientId) => {
   handleGenerationRequest(generateByClientId(clientId));
 }
 
-const generateModulesByInstanceType = (instanceType) => {
-  handleGenerationRequest(generateByInstance(instanceType));
-}
-
 const clientsOptions = computed(() => {
   if (!modules.value || !modules.value.length) {
     return [];
@@ -153,7 +141,7 @@ const clientsOptions = computed(() => {
   return uniqueClientIds.map(x => {
     return {
       clientId: x,
-      scaffoldTypeName: modules.value.find(m => m.clientId === x)?.scaffoldTypeName,
+      clientName: modules.value.find(m => m.clientId === x)?.clientName,
       count: modules.value.filter(m => m.clientId === x).length
     }
   })

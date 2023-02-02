@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <Copyright>2023 Client Builder</Copyright>
+        <Company>gsk567</Company>
+        <Authors>Georgi Karagogov</Authors>
+        <Product>Client Builder</Product>
+        <PackageProjectUrl>https://clientbuilder.dev/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/clientbuilder/clientbuilder</RepositoryUrl>
+        <Description>Runtime generation engine</Description>
+        <PackageTags>runtime generation, aspnet, aspnetmvc, scaffolding</PackageTags>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageIcon>logo_128.png</PackageIcon>
+        <PackageIconUrl />
+        <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <CodeAnalysisRuleSet>../../ClientBuilder.ruleset</CodeAnalysisRuleSet>
+        <LangVersion>default</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\..\art\logo_128.png">
+            <Pack>True</Pack>
+            <!--suppress CheckTagEmptyBody -->
+            <PackagePath></PackagePath>
+        </None>
+        <None Include="..\..\LICENSE">
+            <Pack>True</Pack>
+            <!--suppress CheckTagEmptyBody -->
+            <PackagePath></PackagePath>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+    
+</Project>

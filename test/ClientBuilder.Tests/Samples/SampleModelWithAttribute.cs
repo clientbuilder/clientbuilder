@@ -1,4 +1,4 @@
-﻿using ClientBuilder.DataAnnotations;
+﻿using ClientBuilder.Attributes;
 
 namespace ClientBuilder.Tests.Samples;
 

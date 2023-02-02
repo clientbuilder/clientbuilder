@@ -22,11 +22,10 @@ public static class ResponseMapper
             Id = module.Id,
             Name = module.Name,
             Order = module.Order,
-            ScaffoldTypeName = module.ScaffoldTypeName,
-            SourceDirectory = module.SourceDirectory,
-            Type = module.Type,
-            Generated = module.Generated,
             ClientId = module.ClientId,
+            ClientName = module.ClientName,
+            SourceDirectory = module.SourceDirectory,
+            Generated = module.Generated,
             Files = module.GetFiles().Select(x => new ScaffoldModuleFileSystemItemModel
             {
                 Name = x.Name,

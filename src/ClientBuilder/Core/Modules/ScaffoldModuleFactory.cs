@@ -12,18 +12,22 @@ namespace ClientBuilder.Core.Modules;
 /// <inheritdoc />
 public class ScaffoldModuleFactory : IScaffoldModuleFactory
 {
+    private readonly IFileSystemManager fileSystemManager;
     private readonly IOptions<ClientBuilderOptions> optionsAccessor;
     private readonly IEnumerable<IScaffoldModule> scaffoldModules;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ScaffoldModuleFactory"/> class.
     /// </summary>
+    /// <param name="fileSystemManager"></param>
     /// <param name="optionsAccessor"></param>
     /// <param name="scaffoldModules"></param>
     public ScaffoldModuleFactory(
+        IFileSystemManager fileSystemManager,
         IOptions<ClientBuilderOptions> optionsAccessor,
         IEnumerable<IScaffoldModule> scaffoldModules)
     {
+        this.fileSystemManager = fileSystemManager;
         this.optionsAccessor = optionsAccessor;
         this.scaffoldModules = scaffoldModules;
     }
@@ -35,10 +39,10 @@ public class ScaffoldModuleFactory : IScaffoldModuleFactory
         foreach (var scaffoldModuleInstance in this.scaffoldModules)
         {
             var scaffoldModule = (ScaffoldModule)scaffoldModuleInstance;
-            scaffoldModule.SetSourceDirectory(this.optionsAccessor.Value.ContentRootPath);
             await scaffoldModule.SetupAsync();
             scaffoldModule.ValidateModule();
-            scaffoldModule.Sync();
+            scaffoldModule.ConsolidateModule(this.optionsAccessor.Value);
+            scaffoldModule.Sync(this.fileSystemManager);
             modules.Add(scaffoldModule);
         }
 
