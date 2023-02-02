@@ -13,6 +13,7 @@ public enum ExampleEnum
     Example2 = 2,
 }
 
+[IncludeElement]
 public enum NegativeEnum
 {
     ExampleNegative100 = -100,

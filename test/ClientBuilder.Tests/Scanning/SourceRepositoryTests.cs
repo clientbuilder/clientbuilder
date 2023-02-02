@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using ClientBuilder.Common;
 using ClientBuilder.Core.Scanning;
-using ClientBuilder.TestAssembly.Controllers;
 using ClientBuilder.Tests.Fakes;
 using ClientBuilder.Tests.Samples;
 using FluentAssertions;
@@ -16,6 +13,43 @@ namespace ClientBuilder.Tests.Scanning;
 
 public class SourceRepositoryTests
 {
+    [Fact]
+    public void Fetch_OnStandardInvocation_ShouldReturnCorrectDescriptions()
+    {
+        var assemblyScannerMock = new Mock<IAssemblyScanner>();
+        assemblyScannerMock
+            .Setup(x => x.FetchSourceTypes())
+            .Returns(new List<SourceAssemblyType>
+            {
+                new ()
+                {
+                    Type = typeof(SampleModelWithAttribute)
+                },
+                new ()
+                {
+                    Type = typeof(SampleModelWithoutAttribute)
+                },
+                new ()
+                {
+                    Type = typeof(SampleClassWithAttribute)
+                }
+            });
+        
+        var repository = this.GetSubject(assemblyScannerMock);
+        var descriptions = repository.Fetch(x => x.Type.Name.StartsWith("SampleMode"));
+
+        descriptions
+            .Should()
+            .HaveCount(2);
+
+        descriptions
+            .Select(x => x.Name)
+            .Should()
+            .BeEquivalentTo(
+                nameof(SampleModelWithAttribute),
+                nameof(SampleModelWithoutAttribute));
+    }
+    
     [Fact]
     public void FetchIncludedClasses_OnStandardInvocation_ShouldReturnCorrectDescriptions()
     {
@@ -30,7 +64,7 @@ public class SourceRepositoryTests
                 },
                 new ()
                 {
-                    Type = typeof(SampleModelWIthoutAttribute)
+                    Type = typeof(SampleModelWithoutAttribute)
                 },
                 new ()
                 {
@@ -81,7 +115,7 @@ public class SourceRepositoryTests
                 },
                 new ()
                 {
-                    Type = typeof(SampleModelWIthoutAttribute)
+                    Type = typeof(SampleModelWithoutAttribute)
                 },
                 new ()
                 {
@@ -117,11 +151,54 @@ public class SourceRepositoryTests
                 new ()
                 {
                     Type = typeof(SampleClassWithAttribute)
-                }
+                },
+                new ()
+                {
+                    Type = typeof(NegativeEnum),
+                },
             });
         
         var repository = this.GetSubject(assemblyScannerMock);
         var descriptions = repository.FetchIncludedEnums();
+
+        descriptions
+            .Should()
+            .HaveCount(1);
+
+        descriptions
+            .First()
+            .Name
+            .Should()
+            .Be(nameof(NegativeEnum));
+        
+        descriptions
+            .First()
+            .SourceType
+            .Should()
+            .Be(typeof(NegativeEnum));
+    }
+
+    
+    [Fact]
+    public void FetchEnums_OnDefaultInvocation_ShouldReturnCorrectDescriptions()
+    {
+        var assemblyScannerMock = new Mock<IAssemblyScanner>();
+        assemblyScannerMock
+            .Setup(x => x.FetchSourceTypes())
+            .Returns(new List<SourceAssemblyType>
+            {
+                new ()
+                {
+                    Type = typeof(DayOfWeek)
+                },
+                new ()
+                {
+                    Type = typeof(SampleClassWithAttribute)
+                }
+            });
+        
+        var repository = this.GetSubject(assemblyScannerMock);
+        var descriptions = repository.FetchEnums();
 
         descriptions
             .Should()
@@ -141,7 +218,7 @@ public class SourceRepositoryTests
     }
 
     [Fact]
-    public void FetchIncludedEnums_OnInvocationWithFilterExpression_ShouldReturnCorrectDescriptions()
+    public void FetchEnums_OnInvocationWithFilterExpression_ShouldReturnCorrectDescriptions()
     {
         var assemblyScannerMock = new Mock<IAssemblyScanner>();
         assemblyScannerMock
@@ -163,7 +240,7 @@ public class SourceRepositoryTests
             });
         
         var repository = this.GetSubject(assemblyScannerMock);
-        var descriptions = repository.FetchIncludedEnums(x => x.Type.Name.Contains("Mode"));
+        var descriptions = repository.FetchEnums(x => x.Type.Name.Contains("Mode"));
 
         descriptions
             .Should()
@@ -183,7 +260,7 @@ public class SourceRepositoryTests
     }
 
     [Fact]
-    public void FetchIncludedEnums_OnInvocationWithError_ShouldReturnCorrectDescriptions()
+    public void FetchEnums_OnInvocationWithError_ShouldReturnCorrectDescriptions()
     {
         var assemblyScannerMock = new Mock<IAssemblyScanner>();
         assemblyScannerMock

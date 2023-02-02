@@ -1,6 +1,6 @@
 ﻿namespace ClientBuilder.Tests.Samples;
 
-public class SampleModelWIthoutAttribute
+public class SampleModelWithoutAttribute
 {
     public string Name { get; set; }
 }

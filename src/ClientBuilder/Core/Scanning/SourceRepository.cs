@@ -31,15 +31,32 @@ public class SourceRepository : ISourceRepository
     }
 
     /// <inheritdoc/>
-    public IEnumerable<TypeDescription> FetchIncludedEnums(Func<SourceAssemblyType, bool> filter = null)
+    public IEnumerable<TypeDescription> Fetch(Func<SourceAssemblyType, bool> filter) =>
+        this.FetchDescriptions(filter);
+
+    /// <inheritdoc/>
+    public IEnumerable<TypeDescription> FetchEnums(Func<SourceAssemblyType, bool> filter = null) =>
+        this.FetchDescriptions(x => x.Type.IsEnum, filter);
+
+    /// <inheritdoc/>
+    public IEnumerable<TypeDescription> FetchIncludedEnums(Func<SourceAssemblyType, bool> filter = null) =>
+        this.FetchDescriptions(x => x.Type.IsEnum && x.Type.HasCustomAttribute<IncludeElementAttribute>(), filter);
+
+    /// <inheritdoc/>
+    public IEnumerable<TypeDescription> FetchIncludedClasses(Func<SourceAssemblyType, bool> filter = null) =>
+        this.FetchDescriptions(x => x.Type.IsClass && x.Type.HasCustomAttribute<IncludeElementAttribute>(), filter);
+
+    private IEnumerable<TypeDescription> FetchDescriptions(
+        Func<SourceAssemblyType, bool> primaryFilter,
+        Func<SourceAssemblyType, bool> secondaryFilter = null)
     {
         try
         {
-            Func<SourceAssemblyType, bool> typeFilter = filter ?? (_ => true);
+            Func<SourceAssemblyType, bool> additionalFilter = secondaryFilter ?? (_ => true);
             var enumsTypeDescriptions = this.assemblyScanner
                 .FetchSourceTypes()
-                .Where(x => x.Type.IsEnum)
-                .Where(typeFilter)
+                .Where(primaryFilter)
+                .Where(additionalFilter)
                 .Select(x => this.descriptionExtractor.ExtractTypeDescription(x.Type))
                 .ToList();
 
@@ -47,29 +64,7 @@ public class SourceRepository : ISourceRepository
         }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "An unexpected error occurred during fetching enums");
-            return new List<TypeDescription>();
-        }
-    }
-
-    /// <inheritdoc/>
-    public IEnumerable<TypeDescription> FetchIncludedClasses(Func<SourceAssemblyType, bool> filter = null)
-    {
-        try
-        {
-            Func<SourceAssemblyType, bool> typeFilter = filter ?? (_ => true);
-            var classesTypeDescriptions = this.assemblyScanner
-                .FetchSourceTypes()
-                .Where(x => x.Type.IsClass && x.Type.HasCustomAttribute<IncludeElementAttribute>())
-                .Where(typeFilter)
-                .Select(x => this.descriptionExtractor.ExtractTypeDescription(x.Type))
-                .ToList();
-
-            return classesTypeDescriptions;
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "An unexpected error occurred during fetching classes");
+            this.logger.LogError(ex, "An unexpected error occurred during fetching types");
             return new List<TypeDescription>();
         }
     }

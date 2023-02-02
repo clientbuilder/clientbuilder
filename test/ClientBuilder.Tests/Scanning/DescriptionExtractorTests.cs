@@ -240,7 +240,7 @@ public class DescriptionExtractorTests
         var descriptionExtractor = this.GetSubject();
         var enumModelDescription = descriptionExtractor.ExtractTypeDescription(typeof(ModelWithEnum));
         var inheritedEnumModel = descriptionExtractor.ExtractTypeDescription(typeof(ModelInheritByModelWithEnum));
-        var nonEnumModelDescription = descriptionExtractor.ExtractTypeDescription(typeof(SampleModelWIthoutAttribute));
+        var nonEnumModelDescription = descriptionExtractor.ExtractTypeDescription(typeof(SampleModelWithoutAttribute));
 
         var uniqueEnums = descriptionExtractor.ExtractUniqueEnumsFromClasses(new List<TypeDescription> { enumModelDescription, inheritedEnumModel, nonEnumModelDescription });
         uniqueEnums
