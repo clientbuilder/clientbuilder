@@ -12,22 +12,22 @@ using Microsoft.Extensions.Logging;
 namespace ClientBuilder.Core.Scanning;
 
 /// <inheritdoc />
-public class ControllerDescriptionExtractor : IControllerDescriptionExtractor
+public class MvcDescriptionExtractor : IMvcDescriptionExtractor
 {
     private readonly IAssemblyScanner assemblyScanner;
     private readonly IDescriptionExtractor descriptionExtractor;
-    private readonly ILogger<ControllerDescriptionExtractor> logger;
+    private readonly ILogger<MvcDescriptionExtractor> logger;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ControllerDescriptionExtractor"/> class.
+    /// Initializes a new instance of the <see cref="MvcDescriptionExtractor"/> class.
     /// </summary>
     /// <param name="assemblyScanner"></param>
     /// <param name="descriptionExtractor"></param>
     /// <param name="logger"></param>
-    public ControllerDescriptionExtractor(
+    public MvcDescriptionExtractor(
         IAssemblyScanner assemblyScanner,
         IDescriptionExtractor descriptionExtractor,
-        ILogger<ControllerDescriptionExtractor> logger)
+        ILogger<MvcDescriptionExtractor> logger)
     {
         this.assemblyScanner = assemblyScanner;
         this.descriptionExtractor = descriptionExtractor;
@@ -35,12 +35,13 @@ public class ControllerDescriptionExtractor : IControllerDescriptionExtractor
     }
 
     /// <inheritdoc/>
-    public IEnumerable<ControllerAction> FetchControllerActions(IEnumerable<string> groups = null, Func<SourceAssemblyType, bool> filter = null)
+    public IEnumerable<ControllerAction> FetchControllerActions(MvcExtractionOptions options = null)
     {
         try
         {
+            var extractionOptions = options ?? new MvcExtractionOptions();
             Func<SourceAssemblyType, bool> groupsFilter = _ => true;
-            if (groups != null && groups.Any())
+            if (extractionOptions.Groups != null && extractionOptions.Groups.Any())
             {
                 groupsFilter = x =>
                 {
@@ -51,11 +52,11 @@ public class ControllerDescriptionExtractor : IControllerDescriptionExtractor
                         attributeGroups.AddRange(attribute.Groups);
                     }
 
-                    return groups.Intersect(attributeGroups).Any();
+                    return extractionOptions.Groups.Intersect(attributeGroups).Any();
                 };
             }
 
-            Func<SourceAssemblyType, bool> typeFilter = filter ?? (_ => true);
+            Func<SourceAssemblyType, bool> typeFilter = extractionOptions.Filter ?? (_ => true);
             var controllersTypes = this.assemblyScanner
                 .FetchSourceTypes()
                 .Where(x => x.Type.HasCustomAttribute<IncludeControllerAttribute>())
@@ -122,8 +123,9 @@ public class ControllerDescriptionExtractor : IControllerDescriptionExtractor
         try
         {
             var actionAttribute = actionInfo.GetCustomAttribute<IncludeActionAttribute>();
-            string controllerRoute = controllerType.GetCustomAttribute<RouteAttribute>()?.Template;
-            string actionRoute = this.GetActionRoute(actionInfo);
+
+            var controllerRoute = controllerType.GetControllerRoute();
+            string actionRoute = actionInfo.GetActionRoute();
 
             var currentAction = new ControllerAction();
             currentAction.Id = $"{controllerType.FullName?.ToLower().Replace('.', '-')}-{actionInfo.Name.ToLower().Replace('.', '-')}";
@@ -133,7 +135,7 @@ public class ControllerDescriptionExtractor : IControllerDescriptionExtractor
                 ? actionRoute
                 : $"{controllerRoute}{actionRoute}";
 
-            currentAction.Method = this.GetControllerActionHttpMethod(actionInfo);
+            currentAction.Method = actionInfo.GetMethodHttpDecoration();
             currentAction.Authorized = actionInfo.HasCustomAttribute<AuthorizeAttribute>() ||
                                        (controllerType.HasCustomAttribute<AuthorizeAttribute>() &&
                                         !actionInfo.HasCustomAttribute<AllowAnonymousAttribute>());
@@ -151,57 +153,5 @@ public class ControllerDescriptionExtractor : IControllerDescriptionExtractor
             this.logger.LogError(ex, "Error on creating endpoint from controller ({FullName}) action ({Name})", controllerType.FullName, actionInfo.Name);
             return null;
         }
-    }
-
-    private string GetActionRoute(MethodInfo actionInfo)
-    {
-        string route = actionInfo.GetCustomAttribute<RouteAttribute>()?.Template;
-        if (route == null)
-        {
-            route = actionInfo.GetCustomAttribute<HttpMethodAttribute>()?.Template;
-        }
-
-        return route;
-    }
-
-    /// <summary>
-    /// Gets the <see cref="System.Net.Http.HttpMethod"/> from action from the controller based on action attributes.
-    /// </summary>
-    /// <param name="methodInfo"></param>
-    /// <returns></returns>
-    private System.Net.Http.HttpMethod GetControllerActionHttpMethod(MethodInfo methodInfo)
-    {
-        System.Net.Http.HttpMethod resultMethod = System.Net.Http.HttpMethod.Get;
-
-        if (methodInfo.HasCustomAttribute<HttpGetAttribute>())
-        {
-            resultMethod = System.Net.Http.HttpMethod.Get;
-        }
-        else if (methodInfo.HasCustomAttribute<HttpPostAttribute>())
-        {
-            resultMethod = System.Net.Http.HttpMethod.Post;
-        }
-        else if (methodInfo.HasCustomAttribute<HttpPutAttribute>())
-        {
-            resultMethod = System.Net.Http.HttpMethod.Put;
-        }
-        else if (methodInfo.HasCustomAttribute<HttpDeleteAttribute>())
-        {
-            resultMethod = System.Net.Http.HttpMethod.Delete;
-        }
-        else if (methodInfo.HasCustomAttribute<HttpOptionsAttribute>())
-        {
-            resultMethod = System.Net.Http.HttpMethod.Options;
-        }
-        else if (methodInfo.HasCustomAttribute<HttpHeadAttribute>())
-        {
-            resultMethod = System.Net.Http.HttpMethod.Head;
-        }
-        else if (methodInfo.HasCustomAttribute<HttpPatchAttribute>())
-        {
-            resultMethod = System.Net.Http.HttpMethod.Patch;
-        }
-
-        return resultMethod;
     }
 }

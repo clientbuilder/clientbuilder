@@ -37,7 +37,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAssemblyScanner, AssemblyScanner>();
         services.AddScoped<IDescriptionExtractor, DescriptionExtractor>();
         services.AddScoped<ISourceRepository, SourceRepository>();
-        services.AddScoped<IControllerDescriptionExtractor, ControllerDescriptionExtractor>();
+        services.AddScoped<IMvcDescriptionExtractor, MvcDescriptionExtractor>();
 
         foreach (var modulesType in options.ModulesTypes)
         {

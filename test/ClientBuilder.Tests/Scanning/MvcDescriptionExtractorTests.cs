@@ -13,13 +13,16 @@ using Xunit;
 
 namespace ClientBuilder.Tests.Scanning;
 
-public class ControllerDescriptionExtractorTests
+public class MvcDescriptionExtractorTests
 {
     [Fact]
     public void FetchControllerActions_OnDefaultInvocation_ShouldReturnProperActions()
     {
         var extractor = GetSubject();
-        var actions = extractor.FetchControllerActions(new [] { "Main" });
+        var actions = extractor.FetchControllerActions(new MvcExtractionOptions
+        {
+            Groups = ["Main"],
+        });
         actions
             .Should()
             .HaveCount(4);
@@ -102,7 +105,10 @@ public class ControllerDescriptionExtractorTests
     public void FetchControllerActions_OnInvocationAboutAGroup_ShouldReturnProperActions()
     {
         var extractor = GetSubject();
-        var actions = extractor.FetchControllerActions(new [] { "Private" });
+        var actions = extractor.FetchControllerActions(new MvcExtractionOptions
+        {
+            Groups = ["Private"],
+        });
         actions
             .Should()
             .HaveCount(1);
@@ -137,13 +143,53 @@ public class ControllerDescriptionExtractorTests
                 },
             });
     }
+
+    [Fact]
+    public void FetchControllerActions_OnInvocationWithQuickController_ShouldReturnProperActions()
+    {
+        var extractor = GetSubject();
+        var actions = extractor
+            .FetchControllerActions(new MvcExtractionOptions
+            {
+                Groups = null,
+                Filter = x => x.Type.Name == "QuickController",
+            });
+        
+        actions
+            .Should()
+            .HaveCount(1);
+        
+        actions
+            .Select(x => new 
+            {
+                x.ControllerName,
+                x.ActionName,
+                x.Route,
+                x.Method
+            })
+            .Should()
+            .BeEquivalentTo(new List<object>
+            {
+                new
+                {
+                    ControllerName = nameof(QuickController),
+                    ActionName = nameof(QuickController.Index),
+                    Route = "/Quick/Index",
+                    Method = HttpMethod.Get,
+                },
+            });
+    }
     
     [Fact]
     public void FetchControllerActions_OnInvocationWithFilter_ShouldReturnProperActions()
     {
         var extractor = GetSubject();
         var actions = extractor
-            .FetchControllerActions(null, x => x.Type.Name == "SecondIncludedController");
+            .FetchControllerActions(new MvcExtractionOptions
+            {
+                Groups = null,
+                Filter = x => x.Type.Name == "SecondIncludedController",
+            });
         actions
             .Should()
             .HaveCount(1);
@@ -190,7 +236,10 @@ public class ControllerDescriptionExtractorTests
     public void FetchControllerActions_OnSpecifiedController_ShouldConsumeAnyMethod()
     {
         var extractor = this.GetSubject();
-        var actions = extractor.FetchControllerActions(new [] { "AllMethods" });
+        var actions = extractor.FetchControllerActions(new MvcExtractionOptions
+        {
+            Groups = ["AllMethods"]
+        });
 
         actions
             .Select(x => x.Method)
@@ -249,14 +298,14 @@ public class ControllerDescriptionExtractorTests
             });
     }
     
-    private IControllerDescriptionExtractor GetSubject(Mock<IAssemblyScanner> assemblyScannerMock = null)
+    private IMvcDescriptionExtractor GetSubject(Mock<IAssemblyScanner> assemblyScannerMock = null)
     {
         var optionsAccessor = new OptionsAccessorFake();
         var assemblyScanner = assemblyScannerMock?.Object ?? new AssemblyScanner(optionsAccessor);
             
-        return new ControllerDescriptionExtractor(
+        return new MvcDescriptionExtractor(
             assemblyScanner,
             new DescriptionExtractor(optionsAccessor, Mock.Of<ILogger<DescriptionExtractor>>()),
-            Mock.Of<ILogger<ControllerDescriptionExtractor>>());
+            Mock.Of<ILogger<MvcDescriptionExtractor>>());
     }
 }

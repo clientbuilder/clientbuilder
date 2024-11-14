@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <Version>$(PACKAGE_VERSION)</Version>
 <!--        <Version>0.0.0</Version>-->
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-        <Copyright>2023 Client Builder</Copyright>
+        <Copyright>2024 Client Builder</Copyright>
         <Company>gsk567</Company>
         <Authors>Georgi Karagogov</Authors>
         <Product>Client Builder</Product>
@@ -34,15 +34,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Essentials" Version="0.0.5" />
-        <PackageReference Include="Handlebars.Net" Version="2.1.0" />
+        <PackageReference Include="Essentials" Version="0.0.10" />
+        <PackageReference Include="Handlebars.Net" Version="2.1.6" />
         <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-        <PackageReference Include="System.CodeDom" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="System.CodeDom" Version="9.0.0" />
         <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
