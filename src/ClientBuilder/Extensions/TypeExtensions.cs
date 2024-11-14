@@ -121,16 +121,21 @@ internal static class TypeExtensions
     /// <returns></returns>
     internal static string GetControllerRoute(this Type controllerType)
     {
+        var controllerName = controllerType.Name;
+        if (controllerName.EndsWith("Controller", StringComparison.InvariantCultureIgnoreCase))
+        {
+            controllerName = controllerName.Substring(0, controllerName.Length - 10);
+        }
+
         string controllerRoute = controllerType.GetCustomAttribute<RouteAttribute>()?.Template;
         if (string.IsNullOrEmpty(controllerRoute))
         {
-            var controllerName = controllerType.Name;
-            if (controllerName.EndsWith("Controller", StringComparison.InvariantCultureIgnoreCase))
-            {
-                controllerName = controllerName.Substring(0, controllerName.Length - 10);
-            }
-
             controllerRoute = $"/{controllerName}/";
+        }
+
+        if (controllerRoute.Contains("[controller]"))
+        {
+            controllerRoute = controllerRoute.Replace("[controller]", controllerName);
         }
 
         return controllerRoute;

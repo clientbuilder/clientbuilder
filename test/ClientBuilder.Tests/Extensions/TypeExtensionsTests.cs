@@ -57,6 +57,13 @@ public class TypeExtensionsTests
     }
 
     [Fact]
+    public void GetControllerRoute_WhenTemplateRoutePresent_ShouldReturnCorrectRoute()
+    {
+        var result = typeof(TemplateController).GetControllerRoute();
+        result.Should().Be("/Template/");
+    }
+    
+    [Fact]
     public void HasBaseClass_WhenPassingController_ShouldReturnCorrectResult()
     {
         typeof(QuickController).HasBaseClass<ControllerBase>().Should().BeTrue();
