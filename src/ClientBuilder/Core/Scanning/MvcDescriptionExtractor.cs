@@ -131,10 +131,7 @@ public class MvcDescriptionExtractor : IMvcDescriptionExtractor
             currentAction.Id = $"{controllerType.FullName?.ToLower().Replace('.', '-')}-{actionInfo.Name.ToLower().Replace('.', '-')}";
             currentAction.ControllerName = controllerType.Name;
             currentAction.ActionName = actionInfo.Name;
-            currentAction.Route = actionRoute.StartsWith("/", StringComparison.OrdinalIgnoreCase)
-                ? actionRoute
-                : $"{controllerRoute}{actionRoute}";
-
+            currentAction.Route = this.BuildActionRoute(controllerRoute, actionRoute, actionInfo.Name);
             currentAction.Method = actionInfo.GetMethodHttpDecoration();
             currentAction.Authorized = actionInfo.HasCustomAttribute<AuthorizeAttribute>() ||
                                        (controllerType.HasCustomAttribute<AuthorizeAttribute>() &&
@@ -153,5 +150,32 @@ public class MvcDescriptionExtractor : IMvcDescriptionExtractor
             this.logger.LogError(ex, "Error on creating endpoint from controller ({FullName}) action ({Name})", controllerType.FullName, actionInfo.Name);
             return null;
         }
+    }
+
+    private string BuildActionRoute(string controllerRoute, string actionRoute, string actionName)
+    {
+        var route = string.Empty;
+        if (actionRoute.StartsWith("/", StringComparison.OrdinalIgnoreCase))
+        {
+            route = actionRoute;
+        }
+        else
+        {
+            if (controllerRoute.Contains("[action]"))
+            {
+                route = controllerRoute.Replace("[action]", actionName);
+            }
+            else
+            {
+                route = $"{controllerRoute}{actionRoute}";
+            }
+        }
+
+        if (route.Contains("[action]"))
+        {
+            route = route.Replace("[action]", actionName);
+        }
+
+        return route;
     }
 }

@@ -216,6 +216,41 @@ public class MvcDescriptionExtractorTests
     }
 
     [Fact]
+    public void FetchControllerActions_OnInvocationOnATemplateController_ShouldReturnProperActions()
+    {
+        var extractor = GetSubject();
+        var actions = extractor
+            .FetchControllerActions(new MvcExtractionOptions
+            {
+                Filter = x => x.Type == typeof(Template2Controller),
+            });
+        
+        actions
+            .Should()
+            .HaveCount(1);
+
+        actions
+            .Select(x => new 
+            {
+                x.ControllerName,
+                x.ActionName,
+                x.Route,
+                x.Method
+            })
+            .Should()
+            .BeEquivalentTo(new List<object>
+            {
+                new
+                {
+                    ControllerName = nameof(Template2Controller),
+                    ActionName = nameof(Template2Controller.Index),
+                    Route = "/Template2/Index",
+                    Method = HttpMethod.Get,
+                },
+            });
+    }
+    
+    [Fact]
     public void FetchControllerActions_OnInvocationWithError_ShouldReturnProperActions()
     {
         var assemblyScannerMock = new Mock<IAssemblyScanner>();
