@@ -38,11 +38,11 @@
         <PackageReference Include="Handlebars.Net" Version="2.1.6" />
         <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="System.CodeDom" Version="9.0.0" />
+        <PackageReference Include="System.CodeDom" Version="8.0.0" />
         <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
