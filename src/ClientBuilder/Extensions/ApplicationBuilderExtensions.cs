@@ -29,60 +29,68 @@ public static class ApplicationBuilderExtensions
     /// <param name="app"></param>
     /// <returns></returns>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Design Requirement")]
-    public static IEndpointRouteBuilder UseClientBuilderUI(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder UseClientBuilder(this IEndpointRouteBuilder app)
     {
-        app.MapGet(BaseRoute, () =>
-        {
-            var template = new ClientBuilderHtml()
+        app
+            .MapGet(BaseRoute, () =>
             {
-                Session = new Dictionary<string, object>
+                var template = new ClientBuilderHtml()
                 {
-                    { "Styles", ReadAssemblyFile("ClientBuilderStyles.css") },
-                    { "Scripts", ReadAssemblyFile("ClientBuilderScripts.js") },
-                },
-            };
+                    Session = new Dictionary<string, object>
+                    {
+                        { "Styles", ReadAssemblyFile("ClientBuilderStyles.css") },
+                        { "Scripts", ReadAssemblyFile("ClientBuilderScripts.js") },
+                    },
+                };
 
-            return Results.Text(template.TransformText(), "text/html");
-        });
+                return Results.Text(template.TransformText(), "text/html");
+            })
+        .ExcludeFromDescription();
 
-        app.MapGet($"{ApiBaseRoute}/modules", async (IScaffoldModuleRepository moduleRepository) =>
-        {
-            var modules = await moduleRepository.GetModulesAsync();
-            return Results.Ok(modules.Select(ResponseMapper.MapToModel));
-        });
-
-        app.MapPost(
-            $"{ApiBaseRoute}/generate",
-            async (
-                GenerationByIdRequest request,
-                IScaffoldModuleRepository moduleRepository,
-                IScaffoldModuleGenerator moduleGenerator) =>
-        {
-            var modulesForGeneration = new List<ScaffoldModule>();
-            if (string.IsNullOrWhiteSpace(request.ModuleId))
+        app
+            .MapGet($"{ApiBaseRoute}/modules", async (IScaffoldModuleRepository moduleRepository) =>
             {
                 var modules = await moduleRepository.GetModulesAsync();
-                modulesForGeneration.AddRange(modules);
-            }
-            else
-            {
-                var targetModule = await moduleRepository.GetModuleAsync(request.ModuleId);
-                modulesForGeneration.Add(targetModule);
-            }
+                return Results.Ok(modules.Select(ResponseMapper.MapToModel));
+            })
+            .ExcludeFromDescription();
 
-            return await TriggerGenerationAsync(modulesForGeneration, moduleGenerator);
-        });
+        app
+            .MapPost(
+                $"{ApiBaseRoute}/generate",
+                async (
+                    GenerationByIdRequest request,
+                    IScaffoldModuleRepository moduleRepository,
+                    IScaffoldModuleGenerator moduleGenerator) =>
+                {
+                    var modulesForGeneration = new List<ScaffoldModule>();
+                    if (string.IsNullOrWhiteSpace(request.ModuleId))
+                    {
+                        var modules = await moduleRepository.GetModulesAsync();
+                        modulesForGeneration.AddRange(modules);
+                    }
+                    else
+                    {
+                        var targetModule = await moduleRepository.GetModuleAsync(request.ModuleId);
+                        modulesForGeneration.Add(targetModule);
+                    }
 
-        app.MapPost(
-            $"{ApiBaseRoute}/generate/by-client",
-            async (
-                GenerationByClientIdRequest request,
-                IScaffoldModuleRepository moduleRepository,
-                IScaffoldModuleGenerator moduleGenerator) =>
-        {
-            var modules = await moduleRepository.GetModulesByClientIdAsync(request.ClientId);
-            return await TriggerGenerationAsync(modules, moduleGenerator);
-        });
+                    return await TriggerGenerationAsync(modulesForGeneration, moduleGenerator);
+                })
+            .ExcludeFromDescription();
+
+        app
+            .MapPost(
+                $"{ApiBaseRoute}/generate/by-client",
+                async (
+                    GenerationByClientIdRequest request,
+                    IScaffoldModuleRepository moduleRepository,
+                    IScaffoldModuleGenerator moduleGenerator) =>
+                {
+                    var modules = await moduleRepository.GetModulesByClientIdAsync(request.ClientId);
+                    return await TriggerGenerationAsync(modules, moduleGenerator);
+                })
+            .ExcludeFromDescription();
 
         return app;
     }

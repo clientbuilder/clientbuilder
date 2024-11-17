@@ -41,7 +41,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseClientBuilderUI();
+    app.UseClientBuilder();
 }
 
 app.UseHttpsRedirection();
